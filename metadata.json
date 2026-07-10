@@ -1,0 +1,6 @@
+{
+  "name": "Careergize",
+  "description": "An AI-powered career transformation platform offering personalized upskilling paths, 24/7 AI mentor chat, interactive coding streak widgets, and verified digital credentials.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-brand-primary: #006399;
+  --color-brand-primary-light: #0aa8ff;
+  --color-brand-secondary: #0060ab;
+  --color-brand-tertiary: #00696e;
+  --color-brand-accent: #00c2cb;
+  --color-brand-surface: #f7f9ff;
+  --color-brand-dark: #171c21;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+  }
+  
+  .glass-dark {
+    background: rgba(23, 28, 33, 0.8);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .upward-glow {
+    filter: drop-shadow(0 0 12px rgba(10, 168, 255, 0.45));
+  }
+
+  .marquee-container {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .marquee-track {
+    flex-shrink: 0;
+    display: flex;
+    gap: 4rem;
+    min-width: 100%;
+    animation: scroll-marquee 25s linear infinite;
+  }
+}
+
+@keyframes scroll-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Material symbols utility sizing and baseline alignment */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
