@@ -1491,7 +1491,7 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
           MAIN VIEW CONTAINER
       ========================================================= */}
       <main className="lg:ml-64 min-h-screen">
-        <div className="px-4 sm:px-8 lg:px-10 py-8 max-w-7xl mx-auto">
+        <div className="w-full px-4 sm:px-8 lg:px-10 py-8">
 
           {/* Section Breadcrumb & Header Banner */}
           <div className="mb-8">

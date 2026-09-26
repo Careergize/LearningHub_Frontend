@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import NavBar from "./components/NavBar";
 import HeroSection from "./components/HeroSection";
@@ -17,7 +17,7 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import StudentProfile from "./pages/StudentProfile";
+import { Profile } from "./components/profile";
 import AdminLogin from "./pages/AdminLogin";
 import MyLearning from "./pages/MyLearning";
 import Schedule from "./pages/Schedule";
@@ -78,6 +78,17 @@ function LandingPage() {
 /* =========================================================
    ADMIN DASHBOARD
 ========================================================= */
+
+function AuthenticatedProfile() {
+  const storedStudentId = localStorage.getItem("loggedInStudentId");
+  const studentId = Number(storedStudentId);
+
+  if (!storedStudentId || !Number.isInteger(studentId) || studentId <= 0) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Profile userId={studentId} />;
+}
 
 function AdminDashboard() {
 
@@ -1014,7 +1025,7 @@ export default function App() {
 
         <Route
           path="/profile"
-          element={<StudentProfile />}
+          element={<AuthenticatedProfile />}
         />
 
         {/* My Learning */}

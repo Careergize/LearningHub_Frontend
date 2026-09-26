@@ -317,7 +317,7 @@ const StudentProfile = () => {
 
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="w-full px-6 py-4 flex items-center justify-between">
 
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
@@ -379,7 +379,7 @@ const StudentProfile = () => {
       </header>
 
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="w-full px-6 py-8">
 
         {/* Error */}
         {error && (

@@ -39,10 +39,17 @@ try {
     return;
   }
 
+  const studentId = Number(data.user?.id);
+
+  if (!Number.isInteger(studentId) || studentId <= 0) {
+    setError("Login response is missing a valid student ID.");
+    return;
+  }
+
   // Store the real user ID returned by Django
   localStorage.setItem(
     "loggedInStudentId",
-    data.user.id.toString()
+    studentId.toString()
   );
 
   // Store the user's information
