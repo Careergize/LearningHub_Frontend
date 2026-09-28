@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+// import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,6 +10,11 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+/*
+// ==========================================
+// BACKEND API & GEMINI SERVER LOGIC (COMMENTED OUT)
+// ==========================================
 
 // Initialize Gemini client lazily
 let ai: GoogleGenAI | null = null;
@@ -32,13 +37,12 @@ if (apiKey) {
 app.post("/api/mentor", async (req, res) => {
   try {
     const { message, history } = req.body;
-    
+
     if (!message) {
       return res.status(400).json({ error: "Message is required." });
     }
 
     if (!ai) {
-      // High-quality simulated responses when API key is missing
       const simulatedResponses: { [key: string]: string } = {
         "sql": "To improve SQL query performance, make sure to:\n\n1. **Use Indexes**: Index column filters used in `WHERE` and `JOIN` clauses.\n2. **Avoid SELECT ***: Retrieve only the columns you actually need.\n3. **Use EXPLAIN**: Run `EXPLAIN ANALYZE` on queries to see slow query execution plans.\n4. **Optimize Joins**: Keep foreign keys indexed and join on identical data types.\n\nWould you like a sample practice schema to try optimizing?",
         "react": "React Hooks require a solid understanding of execution context:\n\n1. **useState**: Best for local simple states.\n2. **useEffect**: Run side-effects, but always declare stable dependencies (like primitives) or clean up event listeners to avoid infinite loops.\n3. **useMemo & useCallback**: Only use when rendering complex lists or passing callback props to optimized child components to avoid premature complexity.\n\nWhat React concept are you practicing right now?",
@@ -48,7 +52,7 @@ app.post("/api/mentor", async (req, res) => {
 
       const lowerMsg = message.toLowerCase();
       let reply = "That is a great career query! To succeed in modern engineering, always focus on hands-on building, system design fundamentals, and responsive communication. Feel free to ask more about React, SQL, resumes, or portfolios!";
-      
+
       for (const key of Object.keys(simulatedResponses)) {
         if (lowerMsg.includes(key)) {
           reply = simulatedResponses[key];
@@ -56,7 +60,6 @@ app.post("/api/mentor", async (req, res) => {
         }
       }
 
-      // Short delay to mimic real network
       await new Promise(resolve => setTimeout(resolve, 600));
       return res.json({ 
         text: reply,
@@ -65,7 +68,6 @@ app.post("/api/mentor", async (req, res) => {
       });
     }
 
-    // Set up chat session with history
     const systemInstruction = 
       "You are Careergize AI, an exceptionally supportive, friendly, and expert 24/7 Career Mentor. " +
       "Your goal is to guide tech students and developers on upskilling, resume building, mock interviews, portfolios, and coding. " +
@@ -76,7 +78,6 @@ app.post("/api/mentor", async (req, res) => {
       parts: [{ text: h.content }]
     }));
 
-    // Generate content using the recommended gemini-3.5-flash model
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",
       contents: [
@@ -98,8 +99,10 @@ app.post("/api/mentor", async (req, res) => {
     });
   }
 });
+// ==========================================
+*/
 
-// Vite server integration
+// Vite server integration (Only required code to run frontend locally)
 async function startViteServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -108,10 +111,10 @@ async function startViteServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
     });
   }
 

@@ -349,7 +349,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="lg:ml-64 min-h-screen">
 
-        <div className="px-5 sm:px-8 lg:px-10 py-8 max-w-7xl mx-auto">
+        <div className="w-full px-5 sm:px-8 lg:px-10 py-8">
 
           {/* =====================================================
               WELCOME CARD
