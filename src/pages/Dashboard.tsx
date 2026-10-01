@@ -174,6 +174,14 @@ export default function Dashboard() {
       navigate("/schedule");
     }
 
+    if (label === "Achievements") {
+      navigate("/achievements");
+    }
+
+    if (label === "AI Mentor") {
+      navigate("/ai-mentor");
+    }
+
     setMobileMenuOpen(false);
   };
 

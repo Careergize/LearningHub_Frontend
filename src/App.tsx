@@ -21,6 +21,8 @@ import { Profile } from "./components/profile";
 import AdminLogin from "./pages/AdminLogin";
 import MyLearning from "./pages/MyLearning";
 import Schedule from "./pages/Schedule";
+import Achievements from "./pages/Achievements";
+import AiMentor from "./pages/AiMentor";
 
 
 
@@ -1041,6 +1043,20 @@ export default function App() {
         <Route
           path="/schedule"
           element={<Schedule />}
+        />
+
+        {/* Achievements */}
+
+        <Route
+          path="/achievements"
+          element={<Achievements />}
+        />
+
+        {/* AI Mentor */}
+
+        <Route
+          path="/ai-mentor"
+          element={<AiMentor />}
         />
 
         <Route

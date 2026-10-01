@@ -1123,6 +1123,8 @@ export default function MyLearning() {
     if (label === "My Profile") navigate("/profile");
     if (label === "My Learning") navigate("/my-learning");
     if (label === "Schedule") navigate("/schedule");
+    if (label === "Achievements") navigate("/achievements");
+    if (label === "AI Mentor") navigate("/ai-mentor");
     setMobileMenuOpen(false);
   };
 

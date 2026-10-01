@@ -63,6 +63,8 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
     if (label === "Overview") navigate("/dashboard");
     if (label === "My Learning") navigate("/my-learning");
     if (label === "Schedule") navigate("/schedule");
+    if (label === "Achievements") navigate("/achievements");
+    if (label === "AI Mentor") navigate("/ai-mentor");
     setMobileMenuOpen(false);
   };
 
