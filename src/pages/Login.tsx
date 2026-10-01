@@ -50,6 +50,8 @@ const Login: React.FC = () => {
         "loggedInStudentId",
         studentId.toString()
       );
+      // Store the authentication token
+localStorage.setItem("authToken", data.token);
 
       // Store the user's information
       localStorage.setItem(

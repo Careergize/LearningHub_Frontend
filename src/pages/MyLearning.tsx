@@ -99,7 +99,11 @@ export interface CourseNote {
   updatedDate: string;
   type: "Lecture Handout" | "Cheatsheet" | "Architecture Guide" | "Exam Prep";
   topics: string[];
-  previewContent: {
+
+   downloadUrl?: string | null;
+downloadCount?: number;
+
+  previewContent?: {
     summary: string;
     tableOfContents: string[];
     keyTakeaways: string[];
@@ -1068,6 +1072,7 @@ export default function MyLearning() {
   const [notesSearchQuery, setNotesSearchQuery] = useState<string>("");
   const [onlyBookmarked, setOnlyBookmarked] = useState<boolean>(false);
   const [bookmarkedNoteIds, setBookmarkedNoteIds] = useState<string[]>([]);
+  const [backendNotes, setBackendNotes] = useState<CourseNote[]>([]);
   const [previewingNote, setPreviewingNote] = useState<CourseNote | null>(null);
   const [activeNoteSectionIndex, setActiveNoteSectionIndex] = useState<number>(0);
   const [pdfZoom, setPdfZoom] = useState<number>(100);
@@ -1084,6 +1089,30 @@ export default function MyLearning() {
       }
     }
   }, []);
+
+  useEffect(() => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) return;
+
+  fetch("http://127.0.0.1:8000/api/notes/", {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch notes");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setBackendNotes(data.results || []);
+    })
+    .catch((error) => {
+      console.error("Error fetching notes:", error);
+    });
+}, []);
 
   const studentName = user?.username || "Student";
   const studentEmail = user?.email || "student@careergize.com";
@@ -1193,7 +1222,7 @@ export default function MyLearning() {
 
   // Filtered Notes computation
   const filteredNotes = useMemo(() => {
-    return courseNotesData.filter((note) => {
+    return backendNotes.filter((note) => {
       // Filter by enrolled course
       if (notesCourseFilter !== "all" && note.courseId !== notesCourseFilter) {
         return false;
@@ -1222,78 +1251,74 @@ export default function MyLearning() {
       }
       return true;
     });
-  }, [notesCourseFilter, notesTypeFilter, onlyBookmarked, bookmarkedNoteIds, notesSearchQuery]);
+  }, [backendNotes, notesCourseFilter, notesTypeFilter, onlyBookmarked, bookmarkedNoteIds, notesSearchQuery]);
+const handlePreviewNote = async (note: CourseNote) => {
+  try {
+    const token = localStorage.getItem("authToken");
 
-  // Download Note as formatted study document
-  const handleDownloadNote = (note: CourseNote) => {
-    const documentBody = `================================================================================
-CAREERGIZE LEARNING HUB - OFFICIAL VERIFIED COURSE NOTES
-================================================================================
-Curriculum Track:  ${note.courseTitle}
-Module Reference:  ${note.moduleNumber} - ${note.title}
-Instructor:        ${note.instructor}
-Document Type:     ${note.type}
-Pagination:        ${note.pages} Pages (Digital PDF Edition)
-File Size:         ${note.fileSize}
-Edition:           ${note.updatedDate}
-Security Seal:     Verified Tamper-proof Curriculum Material
-================================================================================
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/notes/${note.id}/`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
 
-1. EXECUTIVE SYNOPSIS:
-${note.previewContent.summary}
+    if (!response.ok) {
+      throw new Error("Failed to load note details");
+    }
 
-2. TABLE OF CONTENTS:
-${note.previewContent.tableOfContents.map((t, i) => `  ${i + 1}. ${t}`).join("\n")}
+    const detailedNote = await response.json();
 
-3. CORE REVISION TAKEAWAYS:
-${note.previewContent.keyTakeaways.map((k) => `  [✓] ${k}`).join("\n")}
+    setPreviewingNote(detailedNote);
+    setActiveNoteSectionIndex(0);
+    setPdfZoom(100);
+  } catch (error) {
+    console.error("Preview error:", error);
+    triggerToast("Unable to open the note.");
+  }
+};
+  // Download actual PDF from backend
+const handleDownloadNote = async (note: CourseNote) => {
+  try {
+    const token = localStorage.getItem("authToken");
 
-4. MODULE LECTURE NOTES & CURRICULUM ANALYSIS:
-${note.previewContent.sections
-  .map(
-    (sec) => `
---------------------------------------------------------------------------------
-${sec.heading}
---------------------------------------------------------------------------------
-${sec.content}
-${sec.bulletPoints ? sec.bulletPoints.map((bp) => `  * ${bp}`).join("\n") : ""}`
-  )
-  .join("\n")}
+    // Increase download count in backend
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/notes/${note.id}/download/`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
 
-${
-  note.previewContent.codeSnippets && note.previewContent.codeSnippets.length > 0
-    ? `
-5. PRACTICAL CODE IMPLEMENTATIONS:
-${note.previewContent.codeSnippets
-  .map(
-    (code) => `
-[${code.title}] (${code.language.toUpperCase()})
---------------------------------------------------------------------------------
-${code.code}
---------------------------------------------------------------------------------`
-  )
-  .join("\n")}`
-    : ""
-}
+    if (!response.ok) {
+      throw new Error("Failed to record download");
+    }
 
-================================================================================
-CAREERGIZE ACADEMIC REPOSITORY • REGISTERED STUDENT COPY
-Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
-================================================================================`;
+    // Open the actual uploaded PDF
+    if (note.downloadUrl) {
+      const link = document.createElement("a");
+      link.href = note.downloadUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.click();
 
-    const blob = new Blob([documentBody], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    const sanitizedTitle = note.title.replace(/[^a-zA-Z0-9_-]/g, "_");
-    link.download = `${note.moduleNumber}_${sanitizedTitle}_Notes.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      triggerToast(`Downloaded "${note.title}" PDF!`);
+    } else {
+      triggerToast("PDF file is not available.");
+    }
+  } catch (error) {
+    console.error("Download error:", error);
+    triggerToast("Unable to download PDF.");
+  }
+};
 
-    triggerToast(`Downloaded "${note.title}" notes (${note.fileSize})!`);
-  };
+
+    
 
   // Download all notes bundle
   const handleDownloadAllNotes = () => {
@@ -2342,15 +2367,12 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
 
                         <div className="grid grid-cols-2 gap-2.5">
                           <button
-                            onClick={() => {
-                              setPreviewingNote(note);
-                              setActiveNoteSectionIndex(0);
-                            }}
+                            onClick={() => handlePreviewNote(note)}
                             className="w-full py-2.5 px-3 bg-brand-primary/10 hover:bg-brand-primary/15 text-brand-primary font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                          >
+                         >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Preview PDF</span>
-                          </button>
+                            </button>
 
                           <button
                             onClick={() => handleDownloadNote(note)}
@@ -2659,7 +2681,7 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
       {/* =========================================================
           INTERACTIVE IN-APP PDF READER MODAL
       ========================================================= */}
-      {previewingNote && (
+      {previewingNote && previewingNote.previewContent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-slate-900 rounded-3xl border border-slate-800 max-w-5xl w-full h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
             
@@ -2836,7 +2858,7 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
                           Authenticated Curriculum
                         </span>
                         <div className="text-[10px] text-slate-400 mt-0.5">
-                          ID: CG-NOTEDL-{previewingNote.id.toUpperCase()}
+                          ID: CG-NOTEDL-{String(previewingNote.id).toUpperCase()}
                         </div>
                       </div>
                     </div>
@@ -2914,7 +2936,7 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
                             {previewingNote.previewContent.codeSnippets[0].language}
                           </span>
                           <button
-                            onClick={() => handleCopyCode(previewingNote.previewContent.codeSnippets![0].code)}
+                            onClick={() => handleCopyCode(previewingNote.previewContent!.codeSnippets![0].code)}
                             className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
                             title="Copy code"
                           >
@@ -2984,7 +3006,7 @@ Tamper-evident hash: CG-NOTEDL-${note.id.toUpperCase()}-VERIFIED
                 </button>
 
                 <button
-                  onClick={() => setActiveNoteSectionIndex((prev) => Math.min(previewingNote.previewContent.sections.length - 1, prev + 1))}
+                  onClick={() => setActiveNoteSectionIndex((prev) => Math.min(previewingNote.previewContent!.sections.length - 1, prev + 1))}
                   disabled={activeNoteSectionIndex === previewingNote.previewContent.sections.length - 1}
                   className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold text-white transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >

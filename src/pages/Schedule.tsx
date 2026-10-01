@@ -206,15 +206,15 @@ export default function Schedule() {
   // Navigation & User State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [attendanceStats, setAttendanceStats] = useState({
+  rate: 0,
+  presentCount: 0,
+  totalClasses: 0,
+  streak: 0,
+});
 
-  // Class Sessions State (persisted to localStorage)
-  const [sessions, setSessions] = useState<ClassSession[]>(() => {
-    try {
-      const saved = localStorage.getItem("cg_unified_schedule");
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return INITIAL_SCHEDULE;
-  });
+ // Class Sessions State
+const [sessions, setSessions] = useState<ClassSession[]>([]);
 
   // Active day filter on the weekly calendar strip: "All" | "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat"
   const [selectedDayFilter, setSelectedDayFilter] = useState<string>("All");
@@ -254,6 +254,83 @@ export default function Schedule() {
       }
     }
   }, []);
+  useEffect(() => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) return;
+
+  fetch("http://127.0.0.1:8000/api/schedule/stats/", {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error("Failed to load attendance statistics");
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      setAttendanceStats({
+        rate: data.overallAttendance ?? 0,
+        presentCount: data.attendedSessions ?? 0,
+        totalClasses: data.totalSessions ?? 0,
+        streak: data.attendanceStreak ?? 0,
+      });
+    })
+    .catch((error) => {
+      console.error("Attendance stats error:", error);
+    });
+}, []);
+
+// 👇 PASTE THE NEW CODE HERE
+useEffect(() => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) return;
+
+  fetch("http://127.0.0.1:8000/api/schedule/", {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load schedule: ${response.status}`);
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      const sessionsData = data.results ?? data;
+
+      const mappedSessions: ClassSession[] = sessionsData.map((session: any) => ({
+        id: session.id.toString(),
+        course: session.course,
+        topic: session.topic,
+        dayOfWeek: session.dayOfWeek,
+        date: session.date,
+        month: session.month,
+        fullDate: session.fullDate,
+        time: session.time,
+        instructor: session.instructor,
+        platform: session.platform,
+        meetUrl: session.meet_url,
+        isToday: session.isToday,
+        status: session.status,
+        attendance: session.attendance,
+        checkInTime: session.checkInTime ?? undefined,
+        items: session.items ?? [],
+      }));
+
+      setSessions(mappedSessions);
+    })
+    .catch((error) => {
+      console.error("Schedule fetch error:", error);
+    });
+}, []);
+
 
   const studentName = user?.username || "Student";
   const studentEmail = user?.email || "student@careergize.com";
@@ -274,21 +351,8 @@ export default function Schedule() {
   };
 
   // Calculate Attendance Stats
-  const attendanceStats = useMemo(() => {
-    const completedOrMarked = sessions.filter(
-      (s) => s.attendance === "present" || s.attendance === "late" || s.status === "completed"
-    );
-    const present = sessions.filter((s) => s.attendance === "present").length + 30; // base historical
-    const total = sessions.length + 30;
-    const rate = Math.round((present / total) * 100);
-
-    return {
-      rate: rate || 94,
-      presentCount: present,
-      totalClasses: total,
-      streak: 14,
-    };
-  }, [sessions]);
+  
+    
 
   // Filtered Sessions by selected day
   const filteredSessions = useMemo(() => {
