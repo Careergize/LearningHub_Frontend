@@ -10,15 +10,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
 
         {/* Branding Logo */}
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-brand-primary text-2xl font-bold">
-            rocket_launch
-          </span>
-
-          <span className="font-sans text-xl font-extrabold tracking-tighter text-brand-dark">
-            Careergize<span className="text-brand-primary">.</span>
-          </span>
-        </div>
+<div className="flex items-center">
+  <img
+    src="/src/assets/logo.jpeg"
+    alt="Careergize Logo"
+    className="h-10 w-auto object-contain"
+  />
+</div>
 
         {/* Legal and Metadata */}
         <p className="font-sans text-xs text-brand-dark/40 text-center md:text-right">

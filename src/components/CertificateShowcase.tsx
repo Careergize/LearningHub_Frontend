@@ -152,16 +152,13 @@ export default function CertificateShowcase() {
               {/* Certificate Header */}
               <div className="flex justify-between items-start">
 
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-brand-primary text-xl font-bold">
-                    rocket_launch
-                  </span>
-
-                  <span className="font-sans text-xs font-extrabold tracking-tighter text-brand-dark">
-                    Careergize
-                    <span className="text-brand-primary">.</span>
-                  </span>
-                </div>
+               <div className="flex items-center">
+  <img
+    src="/src/assets/logo.jpeg"
+    alt="Careergize Logo"
+    className="h-8 w-auto object-contain"
+  />
+</div>
 
                 <span className="font-mono text-[9px] text-brand-dark/40 uppercase tracking-widest bg-brand-surface px-2.5 py-1 rounded">
                   SECURE LEDGER RECORD

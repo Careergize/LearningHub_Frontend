@@ -13,15 +13,13 @@ export default function NavBar() {
 
   return (
     <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50 glass rounded-full shadow-lg px-6 md:px-8 py-3.5 flex justify-between items-center transition-all">
-      <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-brand-primary text-2xl font-bold">
-          rocket_launch
-        </span>
-
-        <span className="font-sans text-xl font-extrabold tracking-tighter text-brand-dark">
-          Careergize<span className="text-brand-primary">.</span>
-        </span>
-      </div>
+      <div className="flex items-center">
+  <img
+    src="/src/assets/logo.jpeg"
+    alt="Careergize Logo"
+    className="h-12 w-auto object-contain"
+  />
+</div>
 
       {/* Desktop Links */}
       <div className="hidden md:flex gap-8 items-center">

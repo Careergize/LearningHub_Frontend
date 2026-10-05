@@ -281,20 +281,13 @@ function AdminDashboard() {
 
         <div className="px-6 py-7 border-b border-white/10">
 
-          <div className="flex items-center gap-2">
-
-            <span className="material-symbols-outlined text-blue-400 text-3xl">
-              rocket_launch
-            </span>
-
-            <span className="text-xl font-extrabold tracking-tight">
-
-              Careergize
-              <span className="text-blue-400">.</span>
-
-            </span>
-
-          </div>
+          <div className="flex items-center">
+  <img
+    src="/src/assets/logo.jpeg"
+    alt="Careergize Logo"
+    className="h-10 w-auto object-contain"
+  />
+</div>
 
 
           <p className="text-xs text-gray-400 mt-2">
