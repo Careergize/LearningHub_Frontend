@@ -103,49 +103,7 @@ const navItems = [
    MOCK DATA
 ========================================================= */
 
-const INITIAL_CERTIFICATES: CertificateItem[] = [
-  {
-    id: "cert-1",
-    title: "React & Modern Frontend Architecture",
-    track: "Frontend Engineering",
-    credentialId: "CG-CERT-REACT-90421",
-    issueDate: "September 15, 2024",
-    expiryDate: "Lifetime / Permanent",
-    grade: "Distinction (95%)",
-    instructor: "Dr. Radhika Sharma",
-    skills: ["React 19", "TypeScript", "Zustand", "TanStack Query", "Tailwind CSS"],
-    status: "verified",
-    verificationHash: "0x7F9B...382A_VERIFIED_ON_CG_LEDGER",
-  },
-  {
-    id: "cert-2",
-    title: "Python Full Stack & Django Systems",
-    track: "Backend Engineering",
-    credentialId: "CG-CERT-PY-88410",
-    issueDate: "August 28, 2024",
-    expiryDate: "Lifetime / Permanent",
-    grade: "Honors (92%)",
-    instructor: "Arun Krishnan",
-    skills: ["Python", "Django REST Framework", "PostgreSQL", "Celery", "Docker"],
-    status: "verified",
-    verificationHash: "0x4C1A...99E1_VERIFIED_ON_CG_LEDGER",
-  },
-  {
-    id: "cert-3",
-    title: "AI & Generative AI Systems Engineering",
-    track: "Artificial Intelligence",
-    credentialId: "CG-CERT-AI-PENDING",
-    issueDate: "Expected October 2024",
-    expiryDate: "Lifetime / Permanent",
-    grade: "Current Avg: 94%",
-    instructor: "Siddharth Verma",
-    skills: ["Vector DBs", "RAG Pipelines", "LangChain", "Gemini 2.5", "Prompt Tuning"],
-    status: "in_progress",
-    progress: 68,
-    remainingModules: "2 Capstone evaluations remaining",
-    verificationHash: "PENDING_FINAL_PROJECT",
-  },
-];
+
 
 const INITIAL_BADGES: AchievementBadge[] = [
   {
@@ -454,6 +412,9 @@ export default function Achievements() {
   const [selectedBadge, setSelectedBadge] = useState<AchievementBadge | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const [badges, setBadges] = useState<AchievementBadge[]>([]);
+  const [certificates, setCertificates] = useState<CertificateItem[]>([]);
+
   // Load User from LocalStorage
   useEffect(() => {
     const loggedInUser = localStorage.getItem("loggedInUser");
@@ -465,6 +426,75 @@ export default function Achievements() {
       }
     }
   }, []);
+  useEffect(() => {
+  const fetchAchievements = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/achievements/",
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch achievements");
+      }
+
+      const data = await response.json();
+
+      const formattedBadges: AchievementBadge[] = data.achievements.map(
+        (achievement: any) => ({
+          id: String(achievement.id),
+          title: achievement.title,
+          category: achievement.category || "Mastery",
+          tier: achievement.tier || "milestone",
+          xp: achievement.xp || 0,
+          unlocked: achievement.unlocked,
+          unlockedDate: achievement.unlocked_date
+            ? new Date(achievement.unlocked_date).toLocaleDateString()
+            : undefined,
+          progress: achievement.progress,
+          progressLabel: achievement.progress_label || undefined,
+          description: achievement.description,
+          requirement: achievement.requirement || "",
+          iconType: achievement.icon_type || achievement.icon || "trophy",
+        })
+      );
+
+      setBadges(formattedBadges);
+    } catch (error) {
+      console.error("Failed to load achievements:", error);
+    }
+  };
+
+  fetchAchievements();
+}, []);
+useEffect(() => {
+  const fetchCertificates = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/certificates/",
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      // rest of certificate code...
+    } catch (error) {
+      console.error("Failed to load certificates:", error);
+    }
+  };
+
+  fetchCertificates();
+}, []);
 
   const studentName = user?.username || "suku@gmail.com";
   const studentEmail = user?.email || "suku@gmail.com";
@@ -497,7 +527,7 @@ export default function Achievements() {
 
   // Filtered Badges
   const filteredBadges = useMemo(() => {
-    return INITIAL_BADGES.filter((b) => {
+   return badges.filter((b) => {
       // Category filter
       if (badgeCategory !== "All" && b.category !== badgeCategory) return false;
 
@@ -516,7 +546,7 @@ export default function Achievements() {
 
       return true;
     });
-  }, [badgeCategory, badgeFilterStatus, searchQuery]);
+  }, [badges, badgeCategory, badgeFilterStatus, searchQuery]);
 
   // Badge tier color helper
   const getTierBadgeStyle = (tier: BadgeTier) => {
@@ -920,7 +950,7 @@ export default function Achievements() {
                 }`}
               >
                 <GraduationCap className="w-3.5 h-3.5" />
-                <span>Certificates ({INITIAL_CERTIFICATES.length})</span>
+                <span>Certificates ({certificates.length})</span>
               </button>
 
               <button
@@ -995,7 +1025,7 @@ export default function Achievements() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {INITIAL_CERTIFICATES.map((cert) => {
+                {certificates.map((cert) => {
                   const isVerified = cert.status === "verified";
 
                   return (
