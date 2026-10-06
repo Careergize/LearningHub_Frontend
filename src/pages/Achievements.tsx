@@ -496,7 +496,23 @@ useEffect(() => {
   fetchCertificates();
 }, []);
 
-  const studentName = user?.username || "suku@gmail.com";
+  const getFormattedName = (u: any, fallback = "Student") => {
+    if (u?.first_name || u?.last_name) {
+      const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
+      if (full) return full.includes("@") ? full.split("@")[0] : full;
+    }
+    if (u?.name && typeof u.name === "string" && u.name.trim()) {
+      const trimmed = u.name.trim();
+      return trimmed.includes("@") ? trimmed.split("@")[0] : trimmed;
+    }
+    const raw = u?.username || fallback;
+    if (typeof raw === "string" && raw.includes("@")) {
+      return raw.split("@")[0];
+    }
+    return raw;
+  };
+
+  const studentName = getFormattedName(user, "suku@gmail.com");
   const studentEmail = user?.email || "suku@gmail.com";
   const studentAvatarChar = studentName.charAt(0).toUpperCase();
 
@@ -692,17 +708,6 @@ useEffect(() => {
               </div>
             </div>
           </div>
-
-          {/* Student Profile Quick Tile */}
-          <div className="mt-8 flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
-            <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
-              {studentAvatarChar}
-            </div>
-            <div className="min-w-0">
-              <p className="font-bold text-sm truncate text-slate-800">{studentName}</p>
-              <p className="text-xs text-slate-400 truncate">{studentEmail}</p>
-            </div>
-          </div>
         </div>
 
         {/* Navigation Items */}
@@ -752,8 +757,19 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Logout */}
+        {/* Profile & Logout */}
         <div className="p-4 border-t border-slate-100">
+          {/* Student Profile Quick Tile */}
+          <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
+              {studentAvatarChar}
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-sm truncate text-slate-800">{studentName}</p>
+              <p className="text-xs text-slate-400 truncate">{studentEmail}</p>
+            </div>
+          </div>
+
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition cursor-pointer"
