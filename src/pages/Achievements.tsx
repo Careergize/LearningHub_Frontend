@@ -81,8 +81,8 @@ interface LeaderboardUser {
   email: string;
   xp: number;
   badgesCount: number;
-  streak: number;
   tier: string;
+  streak: number;
   isCurrentUser?: boolean;
 }
 
@@ -330,63 +330,6 @@ const INITIAL_BADGES: AchievementBadge[] = [
   },
 ];
 
-const LEADERBOARD_USERS: LeaderboardUser[] = [
-  {
-    rank: 1,
-    name: "Alex Rivera",
-    email: "alex.r@careergize.dev",
-    xp: 4250,
-    badgesCount: 16,
-    streak: 28,
-    tier: "Grandmaster",
-  },
-  {
-    rank: 2,
-    name: "Priya Nair",
-    email: "priya.n@careergize.dev",
-    xp: 3920,
-    badgesCount: 15,
-    streak: 21,
-    tier: "Master",
-  },
-  {
-    rank: 3,
-    name: "David Kim",
-    email: "david.k@careergize.dev",
-    xp: 3610,
-    badgesCount: 13,
-    streak: 19,
-    tier: "Master",
-  },
-  {
-    rank: 4,
-    name: "Student (You)",
-    email: "suku@gmail.com",
-    xp: 3450,
-    badgesCount: 12,
-    streak: 14,
-    tier: "Senior Learner",
-    isCurrentUser: true,
-  },
-  {
-    rank: 5,
-    name: "Maya Patel",
-    email: "maya.p@careergize.dev",
-    xp: 3280,
-    badgesCount: 11,
-    streak: 12,
-    tier: "Senior Learner",
-  },
-  {
-    rank: 6,
-    name: "Liam Smith",
-    email: "liam.s@careergize.dev",
-    xp: 3150,
-    badgesCount: 10,
-    streak: 15,
-    tier: "Practitioner",
-  },
-];
 
 /* =========================================================
    COMPONENT
@@ -414,6 +357,18 @@ export default function Achievements() {
 
   const [badges, setBadges] = useState<AchievementBadge[]>([]);
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+
+ 
+
+  const [achievementSummary, setAchievementSummary] = useState({
+   total_xp: 0,
+   unlocked_count: 0,
+   total_count: 0,
+    rank: null as number | null,
+  total_students: 0,
+   top_percentage: null as number | null,
+  });
 
   // Load User from LocalStorage
   useEffect(() => {
@@ -446,6 +401,9 @@ export default function Achievements() {
 
       const data = await response.json();
 
+      setAchievementSummary(data.summary);
+      setLeaderboard(data.leaderboard);
+
       const formattedBadges: AchievementBadge[] = data.achievements.map(
         (achievement: any) => ({
           id: String(achievement.id),
@@ -473,6 +431,7 @@ export default function Achievements() {
 
   fetchAchievements();
 }, []);
+
 useEffect(() => {
   const fetchCertificates = async () => {
     try {
@@ -487,7 +446,13 @@ useEffect(() => {
         }
       );
 
-      // rest of certificate code...
+      if (!response.ok) {
+        throw new Error("Failed to fetch certificates");
+      }
+
+      const data = await response.json();
+
+      setCertificates(data);
     } catch (error) {
       console.error("Failed to load certificates:", error);
     }
@@ -495,6 +460,7 @@ useEffect(() => {
 
   fetchCertificates();
 }, []);
+
 
   const getFormattedName = (u: any, fallback = "Student") => {
     if (u?.first_name || u?.last_name) {
@@ -512,9 +478,24 @@ useEffect(() => {
     return raw;
   };
 
-  const studentName = getFormattedName(user, "suku@gmail.com");
+  const studentName = user?.username || "Student";
   const studentEmail = user?.email || "suku@gmail.com";
   const studentAvatarChar = studentName.charAt(0).toUpperCase();
+
+  const totalXp = achievementSummary.total_xp;
+  const unlockedBadges = achievementSummary.unlocked_count;
+  const totalBadges = achievementSummary.total_count;
+  const rank = achievementSummary.rank;
+  const topPercentage = achievementSummary.top_percentage;
+
+  const currentLevel = Math.floor(totalXp / 1000) + 1;
+  const nextLevelXp = currentLevel * 1000;
+  const xpToNextLevel = Math.max(nextLevelXp - totalXp, 0);
+
+  const badgePercentage =
+  totalBadges > 0
+    ? Math.round((unlockedBadges / totalBadges) * 100)
+    : 0;
 
   // Toast Helper
   const showToast = (message: string) => {
@@ -740,20 +721,24 @@ useEffect(() => {
         <div className="p-4 mx-4 mb-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
           <div className="flex items-center justify-between font-bold text-slate-700">
             <span>Achievements Progress</span>
-            <span className="text-brand-primary font-extrabold">12 / 18</span>
+           <span className="text-brand-primary font-extrabold">
+  {unlockedBadges} / {totalBadges}
+</span>
           </div>
           <div className="mt-2 w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
             <div
               className="bg-brand-primary h-1.5 rounded-full"
-              style={{ width: "67%" }}
+              style={{ width: `${badgePercentage}%` }}
             />
           </div>
           <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 font-medium">
             <span className="flex items-center gap-1 text-brand-primary font-bold">
               <Award className="w-3.5 h-3.5" />
-              Level 4
+              Level {currentLevel}
             </span>
-            <span className="text-brand-primary font-bold">3,450 XP</span>
+            <span className="text-brand-primary font-bold">
+  {totalXp.toLocaleString()} XP
+</span>
           </div>
         </div>
 
@@ -863,14 +848,14 @@ useEffect(() => {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Learner Tier</span>
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                        Top 5%
+                        Top {topPercentage ?? "-"}%
                       </span>
                     </div>
                     <div className="text-base font-extrabold text-slate-900">
-                      Level 4 • Senior Learner
+                     Level {currentLevel} • {leaderboard.find((u) => u.email === studentEmail)?.tier || "Learner"}
                     </div>
                     <div className="text-xs text-slate-500 font-medium mt-0.5">
-                      3,450 / 4,000 XP (550 XP to Level 5)
+                     {totalXp.toLocaleString()} / {nextLevelXp.toLocaleString()} XP ({xpToNextLevel.toLocaleString()} XP to Level {currentLevel + 1})
                     </div>
                   </div>
                 </div>
@@ -898,8 +883,12 @@ useEffect(() => {
                 </div>
                 <span className="text-xs font-bold text-slate-400">Earned</span>
               </div>
-              <p className="text-2xl font-extrabold text-slate-900">12 / 18</p>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">Unlocked Badges (67%)</p>
+              <p className="text-2xl font-extrabold text-slate-900">
+  {unlockedBadges} / {totalBadges}
+</p>
+<p className="text-xs sm:text-sm text-slate-500 mt-1">
+  Unlocked Badges ({badgePercentage}%)
+</p>
             </div>
 
             {/* Card 2: Verifiable Certificates */}
@@ -910,7 +899,9 @@ useEffect(() => {
                 </div>
                 <span className="text-xs font-bold text-emerald-600 font-extrabold">Active</span>
               </div>
-              <p className="text-2xl font-extrabold text-slate-900">2 Verified</p>
+              <p className="text-2xl font-extrabold text-slate-900">
+  {certificates.length} Verified
+</p>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">Digital Diplomas</p>
             </div>
 
@@ -920,9 +911,13 @@ useEffect(() => {
                 <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-purple-600" />
                 </div>
-                <span className="text-xs font-bold text-purple-600 font-extrabold">+450 This Wk</span>
+                <span className="text-xs font-bold text-purple-600 font-extrabold">
+  {totalXp.toLocaleString()} XP
+</span>
               </div>
-              <p className="text-2xl font-extrabold text-slate-900">3,450 XP</p>
+              <p className="text-2xl font-extrabold text-slate-900">
+  {totalXp.toLocaleString()} XP
+</p>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">Total Experience Points</p>
             </div>
 
@@ -932,9 +927,13 @@ useEffect(() => {
                 <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
                   <Medal className="w-5 h-5 text-amber-600" />
                 </div>
-                <span className="text-xs font-bold text-emerald-600 font-extrabold">Top 5%</span>
+                <span className="text-xs font-bold text-emerald-600 font-extrabold">
+  Top {topPercentage ?? "-"}%
+</span>
               </div>
-              <p className="text-2xl font-extrabold text-slate-900">Rank #4</p>
+              <p className="text-2xl font-extrabold text-slate-900">
+  Rank #{rank ?? "-"}
+</p>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">Cohort Leaderboard</p>
             </div>
           </div>
@@ -1035,11 +1034,11 @@ useEffect(() => {
                   </p>
                 </div>
 
-                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                  2 Issued • 1 In Progress
-                </span>
-              </div>
-
+               <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+  {certificates.filter((cert) => cert.status === "verified").length} Issued •{" "}
+  {certificates.filter((cert) => cert.status === "in_progress").length} In Progress
+</span>
+</div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {certificates.map((cert) => {
                   const isVerified = cert.status === "verified";
@@ -1369,7 +1368,7 @@ useEffect(() => {
                 <div className="p-2.5 px-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
                   <span className="text-xs font-bold text-slate-500">Your Cohort Rank:</span>
                   <span className="text-sm font-extrabold text-brand-primary">
-                    #4 of 128 Learners
+                    #{rank ?? "-"} of {achievementSummary.total_students} Learners
                   </span>
                 </div>
               </div>
@@ -1388,8 +1387,8 @@ useEffect(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {LEADERBOARD_USERS.map((userRow) => {
-                      const isMe = userRow.isCurrentUser;
+                    {leaderboard.map((userRow) => {
+                     const isMe = userRow.email === studentEmail;
 
                       return (
                         <tr
@@ -1426,34 +1425,42 @@ useEffect(() => {
                             </div>
                           </td>
 
-                          {/* Name + Avatar */}
-                          <td className="py-3.5 px-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary font-bold flex items-center justify-center text-xs shrink-0">
-                                {userRow.name.charAt(0)}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-extrabold text-slate-900">
-                                    {isMe ? studentName : userRow.name}
-                                  </span>
-                                  {isMe && (
-                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-brand-primary text-white font-extrabold">
-                                      YOU
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="text-[11px] text-slate-400 font-normal">
-                                  {isMe ? studentEmail : userRow.email}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
+                          
+{/* Name + Avatar */}
+<td className="py-3.5 px-3">
+  <div className="flex items-center gap-3">
+    <div className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary font-bold flex items-center justify-center text-xs shrink-0">
+      {userRow.name.charAt(0).toUpperCase()}
+    </div>
+
+    <div>
+      <div className="flex items-center gap-1.5">
+        <span className="font-extrabold text-slate-900">
+          {userRow.name}
+        </span>
+
+        {isMe && (
+          <span className="text-[10px] px-1.5 py-0.2 rounded bg-brand-primary text-white font-extrabold">
+            YOU
+          </span>
+        )}
+      </div>
+
+      <span className="text-[11px] text-slate-400 font-normal">
+        {userRow.email}
+      </span>
+    </div>
+  </div>
+</td>
+
+
 
                           {/* Tier */}
-                          <td className="py-3.5 px-3">
-                            <span className="text-slate-600 font-semibold">{userRow.tier}</span>
-                          </td>
+<td className="py-3.5 px-3">
+  <span className="text-slate-600 font-semibold">
+    {userRow.tier}
+  </span>
+</td>
 
                           {/* Badges */}
                           <td className="py-3.5 px-3">
