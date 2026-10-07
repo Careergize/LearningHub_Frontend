@@ -313,7 +313,7 @@ const StudentProfile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="student-dark-theme min-h-screen bg-slate-50">
 
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">

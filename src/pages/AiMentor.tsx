@@ -20,7 +20,7 @@ import {
   Check,
 } from "lucide-react";
 
-import careergizeLogo from "../assets/careergize-logo.jpeg";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 /* =========================================================
    TYPES
@@ -217,9 +217,50 @@ export default function AiMentor() {
     }
   }, []);
 
-  const studentName = user?.username || "suku@gmail.com";
-  const studentEmail = user?.email || "suku@gmail.com";
-  const studentAvatarChar = studentName.charAt(0).toUpperCase();
+  const getFormattedName = (u: any, fallback = "Student") => {
+    if (u?.first_name || u?.last_name) {
+      const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
+      if (full) {
+        const cleaned = full.includes("@") ? full.split("@")[0].trim() : full;
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+        return cleaned;
+      }
+    }
+    if (u?.name && typeof u.name === "string" && u.name.trim()) {
+      const trimmed = u.name.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+    const raw = u?.username || fallback;
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+    return fallback;
+  };
+
+  const studentName = getFormattedName(user);
+  const studentEmail =
+    user?.email ||
+    (typeof user?.username === "string" && user.username.includes("@")
+      ? user.username
+      : "suku@gmail.com");
+  const studentInitials = studentName
+    ? studentName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "S";
+  const studentAvatarChar = studentInitials;
 
   // Navigation handler
   const handleNavigation = (label: string) => {
@@ -346,7 +387,7 @@ Would you like me to generate a complete code example or deep-dive into any spec
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* =========================================================
           DESKTOP SIDEBAR
       ========================================================= */}
@@ -354,15 +395,15 @@ Would you like me to generate a complete code example or deep-dive into any spec
         {/* Brand */}
         <div className="px-7 py-7">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 overflow-hidden">
+            <div className="w-10 h-10 rounded-full logo-circle-white flex items-center justify-center p-1.5 shadow-md overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-8 h-8 object-contain scale-125"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <div className="font-extrabold text-xl tracking-tight text-slate-900">
+              <div className="font-extrabold text-xl tracking-tight">
                 Careergize<span className="text-brand-primary">.</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">
@@ -417,7 +458,7 @@ Would you like me to generate a complete code example or deep-dive into any spec
           {/* Student Profile Quick Tile */}
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
             <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
-              {studentAvatarChar}
+              {studentInitials}
             </div>
             <div className="min-w-0">
               <p className="font-bold text-sm truncate text-slate-800">{studentName}</p>
@@ -439,14 +480,19 @@ Would you like me to generate a complete code example or deep-dive into any spec
           MOBILE HEADER
       ========================================================= */}
       <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center overflow-hidden">
-            <img src={careergizeLogo} alt="Careergize Logo" className="w-7 h-7 object-contain scale-110" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full logo-circle-white flex items-center justify-center p-1 shadow-sm overflow-hidden shrink-0">
+              <img src={careergizeLogo} alt="Careergize Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <div className="font-extrabold text-lg">
+                Careergize<span className="text-brand-primary">.</span>
+              </div>
+              <div className="text-[9px] uppercase tracking-[0.18em] text-slate-400 font-bold">
+                Learning Hub
+              </div>
+            </div>
           </div>
-          <div className="font-extrabold text-base text-slate-900">
-            Careergize<span className="text-brand-primary">.</span>
-          </div>
-        </div>
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

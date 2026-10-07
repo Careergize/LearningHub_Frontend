@@ -73,16 +73,19 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="student-dark-theme min-h-screen flex items-center justify-center px-4 relative overflow-hidden py-10">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-500/15 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 relative z-10 border border-slate-200">
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             Create Account
           </h1>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-slate-400 mt-2 text-sm">
             Sign up to start learning
           </p>
         </div>

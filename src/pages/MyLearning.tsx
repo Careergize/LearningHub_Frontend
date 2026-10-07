@@ -38,7 +38,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-import careergizeLogo from "../assets/careergize-logo.jpeg";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 /* =========================================================
    TYPES
@@ -100,8 +100,8 @@ export interface CourseNote {
   type: "Lecture Handout" | "Cheatsheet" | "Architecture Guide" | "Exam Prep";
   topics: string[];
 
-   downloadUrl?: string | null;
-downloadCount?: number;
+  downloadUrl?: string | null;
+  downloadCount?: number;
 
   previewContent?: {
     summary: string;
@@ -1091,31 +1091,72 @@ export default function MyLearning() {
   }, []);
 
   useEffect(() => {
-  const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken");
 
-  if (!token) return;
+    if (!token) return;
 
-  fetch("http://127.0.0.1:8000/api/notes/", {
-    headers: {
-      Authorization: `Token ${token}`,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to fetch notes");
+    fetch("http://127.0.0.1:8000/api/notes/", {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch notes");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setBackendNotes(data.results || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching notes:", error);
+      });
+  }, []);
+
+  const getFormattedName = (u: any, fallback = "Student") => {
+    if (u?.first_name || u?.last_name) {
+      const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
+      if (full) {
+        const cleaned = full.includes("@") ? full.split("@")[0].trim() : full;
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+        return cleaned;
       }
-      return response.json();
-    })
-    .then((data) => {
-      setBackendNotes(data.results || []);
-    })
-    .catch((error) => {
-      console.error("Error fetching notes:", error);
-    });
-}, []);
+    }
+    if (u?.name && typeof u.name === "string" && u.name.trim()) {
+      const trimmed = u.name.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+    const raw = u?.username || fallback;
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+    return fallback;
+  };
 
-  const studentName = user?.username || "Student";
-  const studentEmail = user?.email || "student@careergize.com";
+  const studentName = getFormattedName(user);
+  const studentEmail =
+    user?.email ||
+    (typeof user?.username === "string" && user.username.includes("@")
+      ? user.username
+      : "student@careergize.com");
+  const studentInitials = studentName
+    ? studentName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+    : "S";
 
   // Sidebar / Header navigation handler
   const handleNavigation = (label: string) => {
@@ -1254,73 +1295,73 @@ export default function MyLearning() {
       return true;
     });
   }, [backendNotes, notesCourseFilter, notesTypeFilter, onlyBookmarked, bookmarkedNoteIds, notesSearchQuery]);
-const handlePreviewNote = async (note: CourseNote) => {
-  try {
-    const token = localStorage.getItem("authToken");
+  const handlePreviewNote = async (note: CourseNote) => {
+    try {
+      const token = localStorage.getItem("authToken");
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/notes/${note.id}/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/notes/${note.id}/`,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load note details");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to load note details");
+      const detailedNote = await response.json();
+
+      setPreviewingNote(detailedNote);
+      setActiveNoteSectionIndex(0);
+      setPdfZoom(100);
+    } catch (error) {
+      console.error("Preview error:", error);
+      triggerToast("Unable to open the note.");
     }
-
-    const detailedNote = await response.json();
-
-    setPreviewingNote(detailedNote);
-    setActiveNoteSectionIndex(0);
-    setPdfZoom(100);
-  } catch (error) {
-    console.error("Preview error:", error);
-    triggerToast("Unable to open the note.");
-  }
-};
+  };
   // Download actual PDF from backend
-const handleDownloadNote = async (note: CourseNote) => {
-  try {
-    const token = localStorage.getItem("authToken");
+  const handleDownloadNote = async (note: CourseNote) => {
+    try {
+      const token = localStorage.getItem("authToken");
 
-    // Increase download count in backend
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/notes/${note.id}/download/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+      // Increase download count in backend
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/notes/${note.id}/download/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to record download");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to record download");
+      // Open the actual uploaded PDF
+      if (note.downloadUrl) {
+        const link = document.createElement("a");
+        link.href = note.downloadUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.click();
+
+        triggerToast(`Downloaded "${note.title}" PDF!`);
+      } else {
+        triggerToast("PDF file is not available.");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      triggerToast("Unable to download PDF.");
     }
-
-    // Open the actual uploaded PDF
-    if (note.downloadUrl) {
-      const link = document.createElement("a");
-      link.href = note.downloadUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.click();
-
-      triggerToast(`Downloaded "${note.title}" PDF!`);
-    } else {
-      triggerToast("PDF file is not available.");
-    }
-  } catch (error) {
-    console.error("Download error:", error);
-    triggerToast("Unable to download PDF.");
-  }
-};
+  };
 
 
-    
+
 
   // Download all notes bundle
   const handleDownloadAllNotes = () => {
@@ -1362,21 +1403,21 @@ const handleDownloadNote = async (note: CourseNote) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans">
 
       {/* =========================================================
           DESKTOP SIDEBAR
       ========================================================= */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 flex-col z-30">
-        
+
         {/* Brand / Logo */}
         <div className="px-7 py-7">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 overflow-hidden">
+            <div className="w-10 h-10 rounded-full logo-circle-white flex items-center justify-center p-1.5 shadow-md overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-8 h-8 object-contain scale-125"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
@@ -1400,11 +1441,10 @@ const handleDownloadNote = async (note: CourseNote) => {
               <button
                 key={item.label}
                 onClick={() => handleNavigation(item.label)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition cursor-pointer ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition cursor-pointer ${isActive
                     ? "bg-brand-primary/10 text-brand-primary font-bold shadow-xs"
                     : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? "text-brand-primary" : "text-slate-400"}`} />
                 <span>{item.label}</span>
@@ -1420,8 +1460,8 @@ const handleDownloadNote = async (note: CourseNote) => {
         <div className="p-4 border-t border-slate-100">
           {/* Student Profile Quick Tile */}
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-extrabold text-sm shrink-0">
-              {studentName.charAt(0).toUpperCase()}
+            <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
+              {studentInitials}
             </div>
             <div className="min-w-0">
               <p className="font-bold text-sm truncate text-slate-800">
@@ -1449,11 +1489,11 @@ const handleDownloadNote = async (note: CourseNote) => {
       <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200">
         <div className="px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 rounded-full logo-circle-white flex items-center justify-center p-1 shadow-sm overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-9 h-9 object-contain scale-110"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
@@ -1487,11 +1527,10 @@ const handleDownloadNote = async (note: CourseNote) => {
                   <button
                     key={item.label}
                     onClick={() => handleNavigation(item.label)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold ${
-                      isActive
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold ${isActive
                         ? "bg-brand-primary/10 text-brand-primary font-bold"
                         : "text-slate-500 hover:bg-slate-100"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-5 h-5" />
                     <span>{item.label}</span>
@@ -1523,7 +1562,7 @@ const handleDownloadNote = async (note: CourseNote) => {
           {/* Section Breadcrumb & Header Banner */}
           <div className="mb-8">
             <div className="relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8">
-              
+
               {/* Subtle background decorative blurs */}
               <div className="absolute -top-20 -right-16 w-64 h-64 rounded-full bg-brand-primary/10 blur-3xl pointer-events-none" />
               <div className="absolute -bottom-20 right-60 w-56 h-56 rounded-full bg-blue-100/70 blur-2xl pointer-events-none" />
@@ -1578,7 +1617,7 @@ const handleDownloadNote = async (note: CourseNote) => {
               1. TOP OVERVIEW / QUICK STATS METRIC CARDS
               ===================================================== */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-            
+
             {/* Card 1: Enrolled Courses */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-brand-primary/40 hover:shadow-sm transition-all">
               <div className="flex items-center justify-between mb-4">
@@ -1678,24 +1717,22 @@ const handleDownloadNote = async (note: CourseNote) => {
               ===================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              
+
               {/* Status Filter Pills */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
                 <button
                   onClick={() => setStatusFilter("All")}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
-                    statusFilter === "All"
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${statusFilter === "All"
                       ? "bg-brand-primary text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   <span>All</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      statusFilter === "All"
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusFilter === "All"
                         ? "bg-white/20 text-white"
                         : "bg-slate-200 text-slate-600"
-                    }`}
+                      }`}
                   >
                     {courses.length}
                   </span>
@@ -1703,20 +1740,18 @@ const handleDownloadNote = async (note: CourseNote) => {
 
                 <button
                   onClick={() => setStatusFilter("in_progress")}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
-                    statusFilter === "in_progress"
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${statusFilter === "in_progress"
                       ? "bg-brand-primary text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   <span className="w-2 h-2 rounded-full bg-amber-400" />
                   <span>In Progress</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      statusFilter === "in_progress"
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusFilter === "in_progress"
                         ? "bg-white/20 text-white"
                         : "bg-slate-200 text-slate-600"
-                    }`}
+                      }`}
                   >
                     {stats.inProgressCount}
                   </span>
@@ -1724,20 +1759,18 @@ const handleDownloadNote = async (note: CourseNote) => {
 
                 <button
                   onClick={() => setStatusFilter("completed")}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
-                    statusFilter === "completed"
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${statusFilter === "completed"
                       ? "bg-brand-primary text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Completed</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      statusFilter === "completed"
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusFilter === "completed"
                         ? "bg-white/20 text-white"
                         : "bg-slate-200 text-slate-600"
-                    }`}
+                      }`}
                   >
                     {stats.completedCount}
                   </span>
@@ -1746,7 +1779,7 @@ const handleDownloadNote = async (note: CourseNote) => {
 
               {/* Right Side: Search & Filter Selectors */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                
+
                 {/* Search Bar matching application style */}
                 <div className="relative w-full sm:w-64 md:w-72">
                   <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -1907,7 +1940,7 @@ const handleDownloadNote = async (note: CourseNote) => {
 
                       {/* Course Card Body */}
                       <div className="p-6">
-                        
+
                         {/* Course Title */}
                         <h3 className="font-extrabold text-lg text-slate-900 leading-snug line-clamp-2 min-h-[3.25rem] group-hover:text-brand-primary transition-colors">
                           {course.title}
@@ -1936,9 +1969,8 @@ const handleDownloadNote = async (note: CourseNote) => {
                               {course.completedLessons} of {course.totalLessons} Lessons
                             </span>
                             <span
-                              className={`font-extrabold text-sm ${
-                                isCompleted ? "text-emerald-600" : "text-brand-primary"
-                              }`}
+                              className={`font-extrabold text-sm ${isCompleted ? "text-emerald-600" : "text-brand-primary"
+                                }`}
                             >
                               {course.progress}%
                             </span>
@@ -1947,11 +1979,10 @@ const handleDownloadNote = async (note: CourseNote) => {
                           {/* Progress Bar with smooth fill */}
                           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-700 ${
-                                isCompleted
+                              className={`h-full rounded-full transition-all duration-700 ${isCompleted
                                   ? "bg-emerald-500"
                                   : "bg-brand-primary"
-                              }`}
+                                }`}
                               style={{ width: `${course.progress}%` }}
                             />
                           </div>
@@ -2087,7 +2118,7 @@ const handleDownloadNote = async (note: CourseNote) => {
               5. COURSE NOTES & PDF STUDY MATERIALS SECTION
               ===================================================== */}
           <div id="course-notes-section" className="mt-16 pt-10 border-t border-slate-200 scroll-mt-6">
-            
+
             {/* Notes Section Header Card */}
             <div className="relative overflow-hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs mb-8">
               <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-brand-primary/10 blur-3xl pointer-events-none" />
@@ -2110,11 +2141,10 @@ const handleDownloadNote = async (note: CourseNote) => {
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={() => setOnlyBookmarked(!onlyBookmarked)}
-                    className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer border ${
-                      onlyBookmarked
+                    className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 cursor-pointer border ${onlyBookmarked
                         ? "bg-amber-500 text-white border-amber-600 shadow-xs"
                         : "bg-slate-50 hover:bg-white text-slate-700 border-slate-200"
-                    }`}
+                      }`}
                   >
                     <Bookmark className={`w-3.5 h-3.5 ${onlyBookmarked ? "fill-white" : "text-amber-500"}`} />
                     <span>Saved Notes ({bookmarkedNoteIds.length})</span>
@@ -2134,7 +2164,7 @@ const handleDownloadNote = async (note: CourseNote) => {
             {/* Course Filter Tabs & Notes Search Bar */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs mb-8">
               <div className="flex flex-col gap-4">
-                
+
                 {/* Course Selection Tabs */}
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
@@ -2143,17 +2173,15 @@ const handleDownloadNote = async (note: CourseNote) => {
                   <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                     <button
                       onClick={() => setNotesCourseFilter("all")}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
-                        notesCourseFilter === "all"
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${notesCourseFilter === "all"
                           ? "bg-brand-primary text-white shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                      }`}
+                        }`}
                     >
                       <Layers className="w-3.5 h-3.5" />
                       <span>All Courses</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        notesCourseFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${notesCourseFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
+                        }`}>
                         {courseNotesData.length}
                       </span>
                     </button>
@@ -2165,17 +2193,15 @@ const handleDownloadNote = async (note: CourseNote) => {
                         <button
                           key={course.id}
                           onClick={() => setNotesCourseFilter(course.id)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
-                            isSelected
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${isSelected
                               ? "bg-brand-primary text-white shadow-xs"
                               : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                          }`}
+                            }`}
                         >
                           <span>{course.icon}</span>
                           <span className="max-w-[180px] truncate">{course.title}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
-                          }`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
+                            }`}>
                             {count}
                           </span>
                         </button>
@@ -2314,9 +2340,8 @@ const handleDownloadNote = async (note: CourseNote) => {
                             aria-label="Bookmark Note"
                           >
                             <Bookmark
-                              className={`w-4 h-4 ${
-                                isBookmarked ? "fill-amber-500 text-amber-500" : "text-slate-400"
-                              }`}
+                              className={`w-4 h-4 ${isBookmarked ? "fill-amber-500 text-amber-500" : "text-slate-400"
+                                }`}
                             />
                           </button>
                         </div>
@@ -2371,10 +2396,10 @@ const handleDownloadNote = async (note: CourseNote) => {
                           <button
                             onClick={() => handlePreviewNote(note)}
                             className="w-full py-2.5 px-3 bg-brand-primary/10 hover:bg-brand-primary/15 text-brand-primary font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                         >
+                          >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Preview PDF</span>
-                            </button>
+                          </button>
 
                           <button
                             onClick={() => handleDownloadNote(note)}
@@ -2452,7 +2477,7 @@ const handleDownloadNote = async (note: CourseNote) => {
       {selectedCertificate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-            
+
             {/* Close Button */}
             <button
               onClick={() => setSelectedCertificate(null)}
@@ -2686,10 +2711,10 @@ const handleDownloadNote = async (note: CourseNote) => {
       {previewingNote && previewingNote.previewContent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-slate-900 rounded-3xl border border-slate-800 max-w-5xl w-full h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
-            
+
             {/* PDF Viewer Header Toolbar */}
             <div className="px-5 py-3.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-4 shrink-0">
-              
+
               {/* Document Meta */}
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-brand-primary/20 text-brand-primary flex items-center justify-center shrink-0">
@@ -2743,11 +2768,10 @@ const handleDownloadNote = async (note: CourseNote) => {
                   title={bookmarkedNoteIds.includes(previewingNote.id) ? "Remove Bookmark" : "Bookmark Note"}
                 >
                   <Bookmark
-                    className={`w-4 h-4 ${
-                      bookmarkedNoteIds.includes(previewingNote.id)
+                    className={`w-4 h-4 ${bookmarkedNoteIds.includes(previewingNote.id)
                         ? "fill-amber-400 text-amber-400"
                         : "text-slate-400"
-                    }`}
+                      }`}
                   />
                 </button>
 
@@ -2772,7 +2796,7 @@ const handleDownloadNote = async (note: CourseNote) => {
 
             {/* PDF Viewer Body: Sidebar & Page Canvas */}
             <div className="flex-1 flex overflow-hidden">
-              
+
               {/* Left Sidebar: Table of Contents */}
               <div className="hidden md:flex flex-col w-72 bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto shrink-0">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
@@ -2789,15 +2813,13 @@ const handleDownloadNote = async (note: CourseNote) => {
                       <button
                         key={idx}
                         onClick={() => setActiveNoteSectionIndex(idx)}
-                        className={`w-full text-left p-2.5 rounded-xl text-xs transition cursor-pointer flex items-start gap-2 ${
-                          isActive
+                        className={`w-full text-left p-2.5 rounded-xl text-xs transition cursor-pointer flex items-start gap-2 ${isActive
                             ? "bg-brand-primary text-white font-bold shadow-xs"
                             : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 font-medium"
-                        }`}
+                          }`}
                       >
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-mono ${
-                          isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-400"
-                        }`}>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-mono ${isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-400"
+                          }`}>
                           {idx + 1}
                         </span>
                         <span className="line-clamp-2 leading-snug">
@@ -2827,7 +2849,7 @@ const handleDownloadNote = async (note: CourseNote) => {
 
               {/* Main Reader Page Canvas */}
               <div className="flex-1 bg-slate-950 p-4 sm:p-6 lg:p-8 overflow-y-auto flex flex-col items-center">
-                
+
                 {/* Virtual Sheet of Paper (PDF Page) */}
                 <div
                   className="bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-300 max-w-3xl w-full p-6 sm:p-10 transition-all duration-200 relative my-auto"
@@ -2836,7 +2858,7 @@ const handleDownloadNote = async (note: CourseNote) => {
                     transformOrigin: "top center",
                   }}
                 >
-                  
+
                   {/* Top Letterhead / Institutional Watermark */}
                   <div className="border-b-2 border-slate-100 pb-4 mb-6">
                     <div className="flex items-center justify-between gap-4">

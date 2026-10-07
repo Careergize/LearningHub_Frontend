@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const Login: React.FC = () => {
         studentId.toString()
       );
       // Store the authentication token
-localStorage.setItem("authToken", data.token);
+      localStorage.setItem("authToken", data.token);
 
       // Store the user's information
       localStorage.setItem(
@@ -72,15 +73,26 @@ localStorage.setItem("authToken", data.token);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <div className="student-dark-theme min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-500/15 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 relative z-10 border border-slate-200">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <div className="w-16 h-16 rounded-full logo-circle-white flex items-center justify-center mx-auto mb-4 p-2 shadow-lg overflow-hidden shrink-0">
+            <img
+              src={careergizeLogo}
+              alt="Careergize Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Careergize Learning Hub
           </h1>
 
-          <p className="text-gray-500 mt-2">
-            Sign in to continue learning
+          <p className="text-slate-400 mt-2 text-sm">
+            Sign in to continue your learning journey
           </p>
         </div>
 
@@ -88,7 +100,7 @@ localStorage.setItem("authToken", data.token);
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-semibold text-slate-300 mb-2"
             >
               Email
             </label>
@@ -100,14 +112,14 @@ localStorage.setItem("authToken", data.token);
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-slate-700/60 rounded-xl outline-none focus:ring-2 focus:ring-brand-primary/50 transition"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-semibold text-slate-300 mb-2"
             >
               Password
             </label>
@@ -119,12 +131,12 @@ localStorage.setItem("authToken", data.token);
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-slate-700/60 rounded-xl outline-none focus:ring-2 focus:ring-brand-primary/50 transition"
             />
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="text-rose-300 text-sm bg-rose-950/40 border border-rose-500/30 rounded-xl p-3">
               {error}
             </div>
           )}
@@ -132,18 +144,18 @@ localStorage.setItem("authToken", data.token);
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-brand-primary hover:bg-brand-primary-light text-white py-3.5 rounded-xl font-bold shadow-lg shadow-brand-primary/25 hover:shadow-brand-primary/40 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-slate-400 mt-6">
           Don't have an account?{" "}
           <button
             type="button"
             onClick={() => navigate("/signup")}
-            className="text-blue-600 font-semibold hover:underline"
+            className="text-brand-primary-light hover:text-sky-300 font-bold hover:underline transition cursor-pointer"
           >
             Sign Up
           </button>

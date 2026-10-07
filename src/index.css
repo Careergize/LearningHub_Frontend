@@ -65,3 +65,370 @@
   line-height: 1;
 }
 
+/* =========================================================
+   STUDENT PORTAL DARK THEME
+   Sleek, attractive, modern dark aesthetic for students
+   ========================================================= */
+
+.student-dark-theme {
+  background-color: #090d16 !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 90% 25%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 10% 75%, rgba(168, 85, 247, 0.09) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(14, 165, 233, 0.08) 0%, transparent 40%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  color: #f1f5f9 !important;
+  color-scheme: dark;
+}
+
+/* Base override for root containers */
+.student-dark-theme.bg-slate-50,
+.student-dark-theme.bg-gray-100 {
+  background-color: transparent !important;
+}
+
+/* Sidebar & Desktop/Mobile Navigation Headers */
+.student-dark-theme aside,
+.student-dark-theme header {
+  background-color: rgba(11, 16, 28, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Cards & Elevated Containers */
+.student-dark-theme .bg-white {
+  background-color: rgba(16, 23, 40, 0.80) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+.student-dark-theme .bg-white\/80,
+.student-dark-theme .bg-white\/90 {
+  background-color: rgba(16, 23, 40, 0.86) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Sub-containers, Meta Panels, Chip Badges */
+.student-dark-theme .bg-slate-50,
+.student-dark-theme .bg-slate-100,
+.student-dark-theme .bg-gray-50,
+.student-dark-theme .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Hover States on Cards & Buttons */
+.student-dark-theme .hover\:bg-slate-50:hover,
+.student-dark-theme .hover\:bg-slate-100:hover,
+.student-dark-theme .hover\:bg-gray-50:hover,
+.student-dark-theme .hover\:bg-gray-100:hover,
+.student-dark-theme .hover\:bg-white:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.student-dark-theme .hover\:border-slate-300:hover,
+.student-dark-theme .hover\:border-slate-200:hover {
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+/* =========================================================
+   TYPOGRAPHY HIERARCHY (Vibrant, High-Contrast & Sleek)
+========================================================= */
+/* Primary Headings & High-Emphasis Titles */
+.student-dark-theme .text-slate-900,
+.student-dark-theme .text-slate-800,
+.student-dark-theme .text-gray-900,
+.student-dark-theme .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+/* Secondary Headings & Main Readable Body */
+.student-dark-theme .text-slate-700,
+.student-dark-theme .text-gray-700 {
+  color: #e2e8f0 !important;
+}
+
+/* Supporting Body & Clean Subtext */
+.student-dark-theme .text-slate-600,
+.student-dark-theme .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+/* Muted Descriptions, Subheadings & Meta Text */
+.student-dark-theme .text-slate-500,
+.student-dark-theme .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* Captions, Timestamps, Labels & Subtle Secondary Info */
+.student-dark-theme .text-slate-400,
+.student-dark-theme .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+/* Light Slate Variants */
+.student-dark-theme .text-slate-300,
+.student-dark-theme .text-gray-300 {
+  color: #cbd5e1 !important;
+}
+.student-dark-theme .text-slate-200,
+.student-dark-theme .text-slate-100 {
+  color: #f1f5f9 !important;
+}
+
+/* =========================================================
+   SEMANTIC ACCENT TEXTS (Luminous & Rich on Dark Themes)
+========================================================= */
+/* Amber, Gold & Yellow (Streak, XP, Milestones, Awards) */
+.student-dark-theme .text-amber-600,
+.student-dark-theme .text-amber-700,
+.student-dark-theme .text-amber-800,
+.student-dark-theme .text-yellow-600,
+.student-dark-theme .text-yellow-700 {
+  color: #fbbf24 !important;
+}
+.student-dark-theme .text-amber-500,
+.student-dark-theme .text-amber-400 {
+  color: #f59e0b !important;
+}
+
+/* Orange (Flames, Streaks) */
+.student-dark-theme .text-orange-600,
+.student-dark-theme .text-orange-700 {
+  color: #fb923c !important;
+}
+
+/* Blue & Sky (Certificates, Links, Points, Verified Badges) */
+.student-dark-theme .text-blue-600,
+.student-dark-theme .text-blue-700,
+.student-dark-theme .text-blue-800,
+.student-dark-theme .text-blue-900 {
+  color: #38bdf8 !important;
+}
+.student-dark-theme .text-blue-500 {
+  color: #60a5fa !important;
+}
+
+/* Emerald & Green (Active, Success, Progress, Revision, Done) */
+.student-dark-theme .text-emerald-600,
+.student-dark-theme .text-emerald-700,
+.student-dark-theme .text-emerald-800,
+.student-dark-theme .text-emerald-900,
+.student-dark-theme .text-emerald-950,
+.student-dark-theme .text-green-600,
+.student-dark-theme .text-green-700,
+.student-dark-theme .text-green-800 {
+  color: #34d399 !important;
+}
+.student-dark-theme .text-emerald-500 {
+  color: #10b981 !important;
+}
+
+/* Purple, Violet & Indigo (Badges, Levels, AI Mentorship) */
+.student-dark-theme .text-purple-600,
+.student-dark-theme .text-purple-700,
+.student-dark-theme .text-purple-800,
+.student-dark-theme .text-violet-600,
+.student-dark-theme .text-indigo-600,
+.student-dark-theme .text-indigo-700 {
+  color: #c084fc !important;
+}
+.student-dark-theme .text-purple-500 {
+  color: #d8b4fe !important;
+}
+
+/* Rose & Red (Alerts, Urgency, Danger, Live Status) */
+.student-dark-theme .text-rose-600,
+.student-dark-theme .text-rose-700,
+.student-dark-theme .text-rose-800,
+.student-dark-theme .text-red-500,
+.student-dark-theme .text-red-600,
+.student-dark-theme .text-red-700 {
+  color: #fb7185 !important;
+}
+
+/* =========================================================
+   PILLS, BADGES & CHIP CONTAINERS (Translucent Glassmorphism)
+========================================================= */
+.student-dark-theme .bg-emerald-50,
+.student-dark-theme .bg-emerald-100,
+.student-dark-theme .bg-emerald-50\/70,
+.student-dark-theme .bg-green-50,
+.student-dark-theme .bg-green-100 {
+  background-color: rgba(52, 211, 153, 0.12) !important;
+}
+.student-dark-theme .border-emerald-200,
+.student-dark-theme .border-emerald-300 {
+  border-color: rgba(52, 211, 153, 0.28) !important;
+}
+
+.student-dark-theme .bg-amber-50,
+.student-dark-theme .bg-amber-100,
+.student-dark-theme .bg-yellow-50,
+.student-dark-theme .bg-yellow-100 {
+  background-color: rgba(251, 191, 36, 0.12) !important;
+}
+.student-dark-theme .border-amber-200,
+.student-dark-theme .border-amber-300 {
+  border-color: rgba(251, 191, 36, 0.28) !important;
+}
+
+.student-dark-theme .bg-blue-50,
+.student-dark-theme .bg-blue-100,
+.student-dark-theme .bg-blue-50\/60 {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+}
+.student-dark-theme .border-blue-200,
+.student-dark-theme .border-blue-300 {
+  border-color: rgba(56, 189, 248, 0.28) !important;
+}
+
+.student-dark-theme .bg-purple-50,
+.student-dark-theme .bg-purple-100 {
+  background-color: rgba(192, 132, 252, 0.12) !important;
+}
+.student-dark-theme .border-purple-200,
+.student-dark-theme .border-purple-300 {
+  border-color: rgba(192, 132, 252, 0.28) !important;
+}
+
+.student-dark-theme .bg-rose-50,
+.student-dark-theme .bg-rose-100,
+.student-dark-theme .bg-red-50,
+.student-dark-theme .bg-red-100 {
+  background-color: rgba(251, 113, 133, 0.12) !important;
+}
+.student-dark-theme .border-rose-200,
+.student-dark-theme .border-rose-300,
+.student-dark-theme .border-red-200 {
+  border-color: rgba(251, 113, 133, 0.28) !important;
+}
+
+.student-dark-theme .bg-indigo-50,
+.student-dark-theme .bg-indigo-100 {
+  background-color: rgba(129, 140, 248, 0.12) !important;
+}
+.student-dark-theme .border-indigo-200,
+.student-dark-theme .border-indigo-300 {
+  border-color: rgba(129, 140, 248, 0.28) !important;
+}
+
+/* Badge & Button Hover States */
+.student-dark-theme .hover\:bg-blue-50:hover {
+  background-color: rgba(56, 189, 248, 0.18) !important;
+}
+.student-dark-theme .hover\:bg-red-50:hover {
+  background-color: rgba(251, 113, 133, 0.18) !important;
+}
+.student-dark-theme .hover\:bg-amber-50:hover {
+  background-color: rgba(251, 191, 36, 0.18) !important;
+}
+
+/* Modal and Document Backgrounds */
+.student-dark-theme .bg-\[\#fafcff\] {
+  background-color: rgba(10, 15, 28, 0.70) !important;
+}
+
+/* Borders & Dividers */
+.student-dark-theme .border-slate-200,
+.student-dark-theme .border-slate-100,
+.student-dark-theme .border-gray-200,
+.student-dark-theme .border-gray-100,
+.student-dark-theme .border-gray-300 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.student-dark-theme .divide-slate-100 > * + *,
+.student-dark-theme .divide-slate-200 > * + *,
+.student-dark-theme .divide-gray-100 > * + * {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Navigation items */
+.student-dark-theme nav button.text-slate-500:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
+}
+
+.student-dark-theme .bg-brand-primary\/10 {
+  background-color: rgba(10, 168, 255, 0.15) !important;
+}
+
+/* Inputs, Textareas, Selects */
+.student-dark-theme input:not([type="checkbox"]):not([type="radio"]),
+.student-dark-theme select,
+.student-dark-theme textarea {
+  background-color: rgba(10, 15, 27, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f8fafc !important;
+}
+
+.student-dark-theme input::placeholder,
+.student-dark-theme textarea::placeholder {
+  color: #64748b !important;
+}
+
+.student-dark-theme input:focus,
+.student-dark-theme select:focus,
+.student-dark-theme textarea:focus {
+  border-color: #0aa8ff !important;
+  box-shadow: 0 0 0 2px rgba(10, 168, 255, 0.25) !important;
+}
+
+.student-dark-theme option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Progress bar track */
+.student-dark-theme .bg-slate-200 {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Modals & Backdrop Overlays */
+.student-dark-theme .bg-black\/60,
+.student-dark-theme .bg-black\/50,
+.student-dark-theme .bg-black\/40,
+.student-dark-theme .bg-slate-900\/60 {
+  background-color: rgba(3, 7, 18, 0.82) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Certificate modal parchment */
+.student-dark-theme .bg-gradient-to-b.from-amber-50\/40 {
+  background: linear-gradient(180deg, #111827 0%, #0c1220 100%) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Custom Sleek Scrollbar */
+.student-dark-theme ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.student-dark-theme ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.student-dark-theme ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+}
+.student-dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* Logo White Circle Badge */
+.student-dark-theme .logo-circle-white,
+.logo-circle-white {
+  background-color: #ffffff !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+}
+
+
+

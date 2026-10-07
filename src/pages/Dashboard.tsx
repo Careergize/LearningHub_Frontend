@@ -20,7 +20,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-import careergizeLogo from "../assets/careergize-logo.jpeg";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 type Course = {
   title: string;
@@ -121,23 +121,41 @@ export default function Dashboard() {
   const getFormattedName = (u: any) => {
     if (u?.first_name || u?.last_name) {
       const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
-      if (full) return full.includes("@") ? full.split("@")[0] : full;
+      if (full) {
+        const cleaned = full.includes("@") ? full.split("@")[0].trim() : full;
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+        return cleaned;
+      }
     }
     if (u?.name && typeof u.name === "string" && u.name.trim()) {
       const trimmed = u.name.trim();
-      return trimmed.includes("@") ? trimmed.split("@")[0] : trimmed;
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
     }
     const raw = u?.username || "Student";
-    if (typeof raw === "string" && raw.includes("@")) {
-      return raw.split("@")[0];
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
     }
-    return raw;
+    return "Student";
   };
+
+  const studentEmail =
+    user?.email ||
+    (typeof user?.username === "string" && user.username.includes("@")
+      ? user.username
+      : "");
 
   const currentStudent: Student = {
     id: user?.id?.toString() || "",
     name: getFormattedName(user),
-    email: user?.email || "",
+    email: studentEmail,
     role: "Learner",
     level: 1,
     xp: 0,
@@ -202,8 +220,18 @@ export default function Dashboard() {
     setMobileMenuOpen(false);
   };
 
+  const initials = currentStudent.name
+    ? currentStudent.name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "S";
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900">
 
       {/* Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 flex-col">
@@ -212,11 +240,11 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
 
-            <div className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20">
+            <div className="w-10 h-10 rounded-full logo-circle-white flex items-center justify-center p-1.5 shadow-md overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-8 h-8 object-contain scale-125"
+                className="w-full h-full object-contain"
               />
             </div>
 
@@ -264,14 +292,14 @@ export default function Dashboard() {
 
         <div className="p-4 border-t border-slate-100">
 
-          {/* Student Profile */}
+          {/* Student Profile Quick Tile */}
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-              <User className="w-5 h-5 text-slate-500" />
+            <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
+              {initials}
             </div>
 
             <div className="min-w-0">
-              <p className="font-bold text-sm truncate">
+              <p className="font-bold text-sm truncate text-slate-800">
                 {currentStudent.name}
               </p>
 
@@ -283,10 +311,10 @@ export default function Dashboard() {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
-            Logout
+            <span>Logout</span>
           </button>
 
         </div>
@@ -300,11 +328,11 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
 
-            <div className="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full logo-circle-white flex items-center justify-center p-1 shadow-sm overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-9 h-9 object-contain"
+                className="w-full h-full object-contain"
               />
             </div>
 

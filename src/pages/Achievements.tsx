@@ -35,7 +35,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import careergizeLogo from "../assets/careergize-logo.jpeg";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 /* =========================================================
    TYPES
@@ -66,7 +66,7 @@ interface CertificateItem {
   credentialId: string;
   issueDate: string;
   expiryDate: string;
-  grade: string;
+  grade?: string;
   instructor: string;
   skills: string[];
   status: "verified" | "in_progress";
@@ -113,7 +113,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "legendary",
     xp: 350,
     unlocked: true,
-    unlockedDate: "Sep 10, 2024",
+    unlockedDate: "Sep 10, 2026",
     description: "Mastered OOP, metaclasses, decorators, and engineered high-throughput REST ViewSets with Django.",
     requirement: "Complete all 25 core Python and Django architectural challenges.",
     iconType: "python",
@@ -125,7 +125,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "legendary",
     xp: 400,
     unlocked: true,
-    unlockedDate: "Sep 18, 2024",
+    unlockedDate: "Sep 18, 2026",
     description: "Built component-driven interfaces using modern Zustand stores, TanStack caching, and zero layout shift.",
     requirement: "Build and deploy 5 production React components with 100% test coverage.",
     iconType: "react",
@@ -149,7 +149,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "rare",
     xp: 200,
     unlocked: true,
-    unlockedDate: "Sep 22, 2024",
+    unlockedDate: "Sep 22, 2026",
     description: "Discovered and corrected 15 edge-case exceptions in the interactive code validation runner.",
     requirement: "Solve 15 debugging challenges on the first attempt.",
     iconType: "bug",
@@ -161,7 +161,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "epic",
     xp: 250,
     unlocked: true,
-    unlockedDate: "Sep 12, 2024",
+    unlockedDate: "Sep 12, 2026",
     description: "Indexed database schemas and reduced sub-second query latency by over 50% in PostgreSQL.",
     requirement: "Optimize 5 slow complex SQL queries using EXPLAIN ANALYZE.",
     iconType: "database",
@@ -173,7 +173,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "milestone",
     xp: 150,
     unlocked: true,
-    unlockedDate: "Sep 24, 2024",
+    unlockedDate: "Sep 24, 2026",
     description: "Checked in on time to 10 consecutive morning live lecture and preparation sessions.",
     requirement: "Verify attendance within the first 5 minutes of 10 live classes.",
     iconType: "clock",
@@ -185,7 +185,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "rare",
     xp: 200,
     unlocked: true,
-    unlockedDate: "Sep 16, 2024",
+    unlockedDate: "Sep 16, 2026",
     description: "Passed all automated TypeScript strict checks and SonarQube quality gates on 8 project PRs.",
     requirement: "Submit 8 assignments with zero lint warnings or formatting errors.",
     iconType: "code",
@@ -197,7 +197,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "epic",
     xp: 300,
     unlocked: true,
-    unlockedDate: "Sep 08, 2024",
+    unlockedDate: "Sep 08, 2026",
     description: "Architected secure JWT authentication, rate limiting, and role-based permissions from scratch.",
     requirement: "Implement end-to-end OAuth and JWT auth flows in a full stack project.",
     iconType: "shield",
@@ -209,9 +209,9 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "legendary",
     xp: 500,
     unlocked: true,
-    unlockedDate: "Sep 25, 2024",
+    unlockedDate: "Sep 25, 2026",
     description: "Successfully deployed a full-stack production application with CI/CD pipeline and cloud hosting.",
-    requirement: "Ship an approved capstone project evaluated with distinction by the mentor team.",
+    requirement: "Ship an approved capstone project successfully evaluated and verified by the mentor team.",
     iconType: "trophy",
   },
   {
@@ -221,7 +221,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "milestone",
     xp: 150,
     unlocked: true,
-    unlockedDate: "Sep 14, 2024",
+    unlockedDate: "Sep 14, 2026",
     description: "Provided thoughtful and constructive feedback on 5 cohort peer code reviews in discussion channels.",
     requirement: "Leave actionable review comments on 5 fellow students' pull requests.",
     iconType: "user",
@@ -233,10 +233,10 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "rare",
     xp: 250,
     unlocked: true,
-    unlockedDate: "Sep 27, 2024",
+    unlockedDate: "Sep 27, 2026",
     description: "Implemented high-performance vector embeddings for semantic document search and similarity matching.",
     requirement: "Store and query 1,000+ vector chunks in a vector database.",
-    iconType: "sparkle",
+    iconType: "vectordb",
   },
   {
     id: "b12",
@@ -245,7 +245,7 @@ const INITIAL_BADGES: AchievementBadge[] = [
     tier: "milestone",
     xp: 150,
     unlocked: true,
-    unlockedDate: "Sep 05, 2024",
+    unlockedDate: "Sep 05, 2026",
     description: "Completed an algorithmic problem-solving sprint in under 15 minutes with optimal O(n) complexity.",
     requirement: "Solve a timed algorithm challenge with 100% test pass within 15 minutes.",
     iconType: "bolt",
@@ -330,6 +330,113 @@ const INITIAL_BADGES: AchievementBadge[] = [
   },
 ];
 
+const INITIAL_CERTIFICATES: CertificateItem[] = [
+  {
+    id: "cert-1",
+    title: "React & Modern Frontend Architecture",
+    track: "Frontend Engineering",
+    credentialId: "CG-CERT-REACT-90421",
+    issueDate: "September 15, 2026",
+    expiryDate: "Lifetime / Permanent",
+    instructor: "Dr. Radhika Sharma",
+    skills: ["React 19", "TypeScript", "Zustand", "TanStack Query", "Tailwind CSS"],
+    status: "verified",
+    verificationHash: "0x7F9B...382A_VERIFIED_ON_CG_LEDGER",
+  },
+  {
+    id: "cert-2",
+    title: "Python Full Stack & Django Systems",
+    track: "Backend Engineering",
+    credentialId: "CG-CERT-PY-88410",
+    issueDate: "August 28, 2026",
+    expiryDate: "Lifetime / Permanent",
+    instructor: "Arun Krishnan",
+    skills: ["Python", "Django REST Framework", "PostgreSQL", "Celery", "Docker"],
+    status: "verified",
+    verificationHash: "0x4C1A...99E1_VERIFIED_ON_CG_LEDGER",
+  },
+  {
+    id: "cert-3",
+    title: "AI & Generative AI Systems Engineering",
+    track: "Artificial Intelligence",
+    credentialId: "CG-CERT-AI-PENDING",
+    issueDate: "Expected October 2026",
+    expiryDate: "Lifetime / Permanent",
+    instructor: "Siddharth Verma",
+    skills: ["Vector DBs", "RAG Pipelines", "LangChain", "Gemini 2.5", "Prompt Tuning"],
+    status: "in_progress",
+    progress: 68,
+    remainingModules: "2 Capstone evaluations remaining",
+    verificationHash: "PENDING_FINAL_PROJECT",
+  },
+];
+
+const LEADERBOARD_USERS: LeaderboardUser[] = [
+  {
+    rank: 1,
+    name: "Alex Rivera",
+    email: "alex.r@careergize.dev",
+    xp: 4250,
+    badgesCount: 16,
+    streak: 28,
+    tier: "Grandmaster",
+  },
+  {
+    rank: 2,
+    name: "Priya Nair",
+    email: "priya.n@careergize.dev",
+    xp: 3920,
+    badgesCount: 15,
+    streak: 21,
+    tier: "Master",
+  },
+  {
+    rank: 3,
+    name: "David Kim",
+    email: "david.k@careergize.dev",
+    xp: 3610,
+    badgesCount: 13,
+    streak: 19,
+    tier: "Master",
+  },
+  {
+    rank: 4,
+    name: "Student (You)",
+    email: "suku@gmail.com",
+    xp: 3450,
+    badgesCount: 12,
+    streak: 14,
+    tier: "Senior Learner",
+    isCurrentUser: true,
+  },
+  {
+    rank: 5,
+    name: "Maya Patel",
+    email: "maya.p@careergize.dev",
+    xp: 3280,
+    badgesCount: 11,
+    streak: 12,
+    tier: "Senior Learner",
+  },
+  {
+    rank: 6,
+    name: "Liam Smith",
+    email: "liam.s@careergize.dev",
+    xp: 3150,
+    badgesCount: 10,
+    streak: 15,
+    tier: "Practitioner",
+  },
+];
+
+const DEFAULT_SUMMARY = {
+  total_xp: 3450,
+  unlocked_count: 12,
+  total_count: 18,
+  rank: 4,
+  total_students: 128,
+  top_percentage: 5,
+};
 
 /* =========================================================
    COMPONENT
@@ -355,20 +462,11 @@ export default function Achievements() {
   const [selectedBadge, setSelectedBadge] = useState<AchievementBadge | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [badges, setBadges] = useState<AchievementBadge[]>([]);
-  const [certificates, setCertificates] = useState<CertificateItem[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [badges, setBadges] = useState<AchievementBadge[]>(INITIAL_BADGES);
+  const [certificates, setCertificates] = useState<CertificateItem[]>(INITIAL_CERTIFICATES);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>(LEADERBOARD_USERS);
 
- 
-
-  const [achievementSummary, setAchievementSummary] = useState({
-   total_xp: 0,
-   unlocked_count: 0,
-   total_count: 0,
-    rank: null as number | null,
-  total_students: 0,
-   top_percentage: null as number | null,
-  });
+  const [achievementSummary, setAchievementSummary] = useState(DEFAULT_SUMMARY);
 
   // Load User from LocalStorage
   useEffect(() => {
@@ -382,105 +480,154 @@ export default function Achievements() {
     }
   }, []);
   useEffect(() => {
-  const fetchAchievements = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
+    const fetchAchievements = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/achievements/",
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/achievements/",
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch achievements");
         }
-      );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch achievements");
-      }
+        const data = await response.json();
 
-      const data = await response.json();
-
-      setAchievementSummary(data.summary);
-      setLeaderboard(data.leaderboard);
-
-      const formattedBadges: AchievementBadge[] = data.achievements.map(
-        (achievement: any) => ({
-          id: String(achievement.id),
-          title: achievement.title,
-          category: achievement.category || "Mastery",
-          tier: achievement.tier || "milestone",
-          xp: achievement.xp || 0,
-          unlocked: achievement.unlocked,
-          unlockedDate: achievement.unlocked_date
-            ? new Date(achievement.unlocked_date).toLocaleDateString()
-            : undefined,
-          progress: achievement.progress,
-          progressLabel: achievement.progress_label || undefined,
-          description: achievement.description,
-          requirement: achievement.requirement || "",
-          iconType: achievement.icon_type || achievement.icon || "trophy",
-        })
-      );
-
-      setBadges(formattedBadges);
-    } catch (error) {
-      console.error("Failed to load achievements:", error);
-    }
-  };
-
-  fetchAchievements();
-}, []);
-
-useEffect(() => {
-  const fetchCertificates = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/certificates/",
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
+        if (data.summary && (data.summary.total_count > 0 || data.summary.total_xp > 0)) {
+          setAchievementSummary(data.summary);
         }
-      );
+        if (Array.isArray(data.leaderboard) && data.leaderboard.length > 0) {
+          setLeaderboard(data.leaderboard);
+        }
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch certificates");
+        if (Array.isArray(data.achievements) && data.achievements.length > 0) {
+          const formattedBadges: AchievementBadge[] = data.achievements.map(
+            (achievement: any) => ({
+              id: String(achievement.id),
+              title: achievement.title,
+              category: achievement.category || "Mastery",
+              tier: achievement.tier || "milestone",
+              xp: achievement.xp || 0,
+              unlocked: achievement.unlocked,
+              unlockedDate: achievement.unlocked_date
+                ? new Date(achievement.unlocked_date).toLocaleDateString()
+                : undefined,
+              progress: achievement.progress,
+              progressLabel: achievement.progress_label || undefined,
+              description: achievement.description,
+              requirement: achievement.requirement || "",
+              iconType: achievement.icon_type || achievement.icon || "trophy",
+            })
+          );
+          setBadges(formattedBadges);
+        }
+      } catch (error) {
+        console.error("Failed to load achievements, preserving defaults:", error);
       }
+    };
 
-      const data = await response.json();
+    fetchAchievements();
+  }, []);
 
-      setCertificates(data);
-    } catch (error) {
-      console.error("Failed to load certificates:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
 
-  fetchCertificates();
-}, []);
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/certificates/",
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch certificates");
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          const formattedCertificates: CertificateItem[] = data.map(
+            (cert: any) => ({
+              id: String(cert.id),
+              title: cert.title,
+              track: cert.track || cert.category || "General",
+              credentialId: cert.credential_id || cert.credentialId || "PENDING",
+              issueDate: cert.issue_date || cert.issueDate || "In Progress",
+              expiryDate: cert.expiry_date || cert.expiryDate || "Lifetime / Permanent",
+              instructor: cert.instructor || cert.issuer || "Instructor",
+              skills: cert.skills || [],
+              status: cert.status || "in_progress",
+              progress: cert.progress,
+              remainingModules: cert.remaining_modules || cert.remainingModules,
+              verificationHash: cert.verification_hash || cert.verificationHash || "PENDING",
+            })
+          );
+          setCertificates(formattedCertificates);
+        }
+      } catch (error) {
+        console.error("Failed to load certificates, preserving defaults:", error);
+      }
+    };
+
+    fetchCertificates();
+  }, []);
 
 
   const getFormattedName = (u: any, fallback = "Student") => {
     if (u?.first_name || u?.last_name) {
       const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
-      if (full) return full.includes("@") ? full.split("@")[0] : full;
+      if (full) {
+        const cleaned = full.includes("@") ? full.split("@")[0].trim() : full;
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+        return cleaned;
+      }
     }
     if (u?.name && typeof u.name === "string" && u.name.trim()) {
       const trimmed = u.name.trim();
-      return trimmed.includes("@") ? trimmed.split("@")[0] : trimmed;
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
     }
     const raw = u?.username || fallback;
-    if (typeof raw === "string" && raw.includes("@")) {
-      return raw.split("@")[0];
+    if (typeof raw === "string") {
+      const trimmed = raw.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
     }
-    return raw;
+    return fallback;
   };
 
-  const studentName = user?.username || "Student";
-  const studentEmail = user?.email || "suku@gmail.com";
-  const studentAvatarChar = studentName.charAt(0).toUpperCase();
+  const studentName = getFormattedName(user);
+  const studentEmail =
+    user?.email ||
+    (typeof user?.username === "string" && user.username.includes("@")
+      ? user.username
+      : "suku@gmail.com");
+  const studentInitials = studentName
+    ? studentName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "S";
 
   const totalXp = achievementSummary.total_xp;
   const unlockedBadges = achievementSummary.unlocked_count;
@@ -591,8 +738,11 @@ useEffect(() => {
       case "code":
         return <Code2 className={className} />;
       case "react":
+        return <ReactLogoIcon className={className} />;
+      case "vectordb":
+      case "vector":
       case "sparkle":
-        return <Sparkles className={className} />;
+        return <VectorDbIcon className={className} />;
       case "streak":
       case "flame":
         return <Flame className={className} />;
@@ -618,6 +768,55 @@ useEffect(() => {
         return <Award className={className} />;
     }
   };
+
+  // Helper custom React logo icon
+  function ReactLogoIcon({ className }: { className: string }) {
+    return (
+      <svg
+        className={className}
+        viewBox="-11.5 -10.23174 23 20.46348"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle cx="0" cy="0" r="2.05" fill="currentColor" />
+        <g stroke="currentColor" strokeWidth="1.2" fill="none">
+          <ellipse rx="11" ry="4.2" />
+          <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+          <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+        </g>
+      </svg>
+    );
+  }
+
+  // Helper custom Vector DB icon
+  function VectorDbIcon({ className }: { className: string }) {
+    return (
+      <svg
+        className={className}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* Semantic Vector Embedding Points */}
+        <circle cx="12" cy="7" r="2.2" fill="currentColor" stroke="none" />
+        <circle cx="5" cy="5.5" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="19" cy="5.5" r="1.5" fill="currentColor" stroke="none" />
+
+        {/* Nearest-Neighbor Cosine Similarity Vectors */}
+        <path d="M5 5.5L12 7" strokeWidth="1.6" />
+        <path d="M19 5.5L12 7" strokeWidth="1.6" />
+        <path d="M5 5.5h14" strokeWidth="1.2" strokeDasharray="2 2" />
+        <path d="M12 7v5" strokeWidth="1.4" strokeDasharray="2 2" />
+
+        {/* Database Storage Layers */}
+        <ellipse cx="12" cy="14.5" rx="7.5" ry="2.3" />
+        <path d="M4.5 14.5v4c0 1.27 3.36 2.3 7.5 2.3s7.5-1.03 7.5-2.3v-4" />
+      </svg>
+    );
+  }
 
   // Helper custom DB icon
   function DatabaseIcon({ className }: { className: string }) {
@@ -665,7 +864,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* =========================================================
           DESKTOP SIDEBAR (Careergize Standard - 100% Theme Matched)
       ========================================================= */}
@@ -673,15 +872,15 @@ useEffect(() => {
         {/* Brand */}
         <div className="px-7 py-7">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 overflow-hidden">
+            <div className="w-10 h-10 rounded-full logo-circle-white flex items-center justify-center p-1.5 shadow-md overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-8 h-8 object-contain scale-125"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <div className="font-extrabold text-xl tracking-tight text-slate-900">
+              <div className="font-extrabold text-xl tracking-tight">
                 Careergize<span className="text-brand-primary">.</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">
@@ -747,7 +946,7 @@ useEffect(() => {
           {/* Student Profile Quick Tile */}
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
             <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0">
-              {studentAvatarChar}
+              {studentInitials}
             </div>
             <div className="min-w-0">
               <p className="font-bold text-sm truncate text-slate-800">{studentName}</p>
@@ -769,14 +968,19 @@ useEffect(() => {
           MOBILE HEADER
       ========================================================= */}
       <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center overflow-hidden">
-            <img src={careergizeLogo} alt="Careergize Logo" className="w-7 h-7 object-contain scale-110" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full logo-circle-white flex items-center justify-center p-1 shadow-sm overflow-hidden shrink-0">
+              <img src={careergizeLogo} alt="Careergize Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <div className="font-extrabold text-lg">
+                Careergize<span className="text-brand-primary">.</span>
+              </div>
+              <div className="text-[9px] uppercase tracking-[0.18em] text-slate-400 font-bold">
+                Learning Hub
+              </div>
+            </div>
           </div>
-          <div className="font-extrabold text-base text-slate-900">
-            Careergize<span className="text-brand-primary">.</span>
-          </div>
-        </div>
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -827,7 +1031,7 @@ useEffect(() => {
                     <Trophy className="w-4 h-4 text-brand-primary" />
                   </div>
                   <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">
-                    HONORS & CREDENTIALS • VERIFIED PROGRESS
+                    CERTIFICATES & CREDENTIALS • VERIFIED PROGRESS
                   </span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -1101,10 +1305,6 @@ useEffect(() => {
                             <span className="text-slate-400 font-medium">Issue Date:</span>
                             <span className="font-semibold text-slate-800">{cert.issueDate}</span>
                           </div>
-                          <div className="flex justify-between items-center text-slate-600">
-                            <span className="text-slate-400 font-medium">Standing:</span>
-                            <span className="font-extrabold text-brand-primary">{cert.grade}</span>
-                          </div>
                         </div>
 
                         {/* In Progress Bar if applicable */}
@@ -1357,7 +1557,7 @@ useEffect(() => {
                       <Medal className="w-3.5 h-3.5" />
                     </div>
                     <h2 className="text-lg font-extrabold text-slate-900">
-                      Cohort Autumn 2024 Leaderboard
+                      Cohort Autumn 2026 Leaderboard
                     </h2>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
@@ -1368,7 +1568,7 @@ useEffect(() => {
                 <div className="p-2.5 px-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
                   <span className="text-xs font-bold text-slate-500">Your Cohort Rank:</span>
                   <span className="text-sm font-extrabold text-brand-primary">
-                    #{rank ?? "-"} of {achievementSummary.total_students} Learners
+                    #{rank ?? 4} of {achievementSummary.total_students || 128} Learners
                   </span>
                 </div>
               </div>
@@ -1388,7 +1588,7 @@ useEffect(() => {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {leaderboard.map((userRow) => {
-                     const isMe = userRow.email === studentEmail;
+                      const isMe = userRow.isCurrentUser || userRow.email === studentEmail;
 
                       return (
                         <tr
@@ -1430,13 +1630,13 @@ useEffect(() => {
 <td className="py-3.5 px-3">
   <div className="flex items-center gap-3">
     <div className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary font-bold flex items-center justify-center text-xs shrink-0">
-      {userRow.name.charAt(0).toUpperCase()}
+      {(isMe ? studentInitials : userRow.name).charAt(0).toUpperCase()}
     </div>
 
     <div>
       <div className="flex items-center gap-1.5">
         <span className="font-extrabold text-slate-900">
-          {userRow.name}
+          {isMe ? studentName : userRow.name}
         </span>
 
         {isMe && (
@@ -1447,7 +1647,7 @@ useEffect(() => {
       </div>
 
       <span className="text-[11px] text-slate-400 font-normal">
-        {userRow.email}
+        {isMe ? studentEmail : userRow.email}
       </span>
     </div>
   </div>
@@ -1545,8 +1745,8 @@ useEffect(() => {
             </div>
 
             {/* Certificate Body (Official Document Layout) */}
-            <div className="p-8 sm:p-12 bg-[#fafcff]">
-              <div className="relative border-8 border-double border-slate-200 bg-white p-8 sm:p-12 rounded-2xl shadow-sm text-center overflow-hidden">
+            <div className="p-8 sm:p-12 bg-slate-900/40">
+              <div className="relative border-8 border-double border-slate-700/60 bg-white p-8 sm:p-12 rounded-2xl shadow-sm text-center overflow-hidden">
                 {/* Certificate Watermark Background */}
                 <div className="absolute inset-0 opacity-[0.03] flex items-center justify-center pointer-events-none">
                   <Trophy className="w-96 h-96 text-brand-primary" />
@@ -1554,11 +1754,11 @@ useEffect(() => {
 
                 {/* Top Certificate Brand */}
                 <div className="flex flex-col items-center mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 mb-3 overflow-hidden">
+                  <div className="w-16 h-16 rounded-full logo-circle-white flex items-center justify-center p-2 mb-3 shadow-md overflow-hidden">
                     <img
                       src={careergizeLogo}
                       alt="Careergize"
-                      className="w-10 h-10 object-contain scale-125"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <div className="text-xl font-extrabold tracking-tight text-slate-900">
@@ -1584,24 +1784,20 @@ useEffect(() => {
                   </h2>
 
                   <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-                    who has satisfied all rigorous curriculum specifications, practical code reviews, and capstone project assessments with distinction for
+                    who has successfully satisfied all curriculum specifications, practical code reviews, and capstone project assessments for
                   </p>
 
                   <h3 className="text-lg sm:text-xl font-extrabold text-brand-primary mt-3 mb-1">
                     {selectedCertificate.title}
                   </h3>
-
-                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200 mt-2">
-                    {selectedCertificate.grade}
-                  </span>
                 </div>
 
                 {/* Skills Tested */}
-                <div className="my-6 py-4 border-y border-slate-100 flex flex-wrap justify-center gap-2">
+                <div className="my-6 py-4 border-y border-slate-200/50 flex flex-wrap justify-center gap-2">
                   {selectedCertificate.skills.map((s) => (
                     <span
                       key={s}
-                      className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-slate-50 text-slate-700 border border-slate-200"
+                      className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-brand-primary/10 text-brand-primary border border-brand-primary/25"
                     >
                       {s}
                     </span>

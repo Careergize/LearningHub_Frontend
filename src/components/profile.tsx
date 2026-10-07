@@ -31,7 +31,7 @@ import {
   AlertCircle,
   Plus,
 } from "lucide-react";
-import careergizeLogo from "../assets/careergize-logo.jpeg";
+import careergizeLogo from "../assets/careergize-logo.png";
 
 const navItems = [
   { label: "Overview", icon: LayoutDashboard },
@@ -45,6 +45,8 @@ const navItems = [
 export interface StudentProfileData {
   id: number;
   name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
   phone: string;
   date_of_birth: string | null;
@@ -80,6 +82,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
   const [copiedId, setCopiedId] = useState<boolean>(false);
   const [skillInput, setSkillInput] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [localUser] = useState<any>(() => {
+    try {
+      const saved = localStorage.getItem("loggedInUser");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -250,16 +260,55 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
     }
   };
 
-  const getFormattedName = (name?: string, fallback = "Student") => {
-    if (!name) return fallback;
-    const trimmed = name.trim();
-    if (trimmed.includes("@")) {
-      return trimmed.split("@")[0];
+  const getFormattedName = (
+    prof?: StudentProfileData | null,
+    u?: any,
+    fallback = "Student"
+  ) => {
+    // 1. Check first_name / last_name from profile or loggedInUser
+    const firstName = prof?.first_name || u?.first_name;
+    const lastName = prof?.last_name || u?.last_name;
+    if (firstName || lastName) {
+      const full = [firstName, lastName].filter(Boolean).join(" ").trim();
+      if (full) {
+        const cleaned = full.includes("@") ? full.split("@")[0].trim() : full;
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+        return cleaned;
+      }
     }
-    return trimmed;
+
+    // 2. Check profile.name or u.name
+    const nameVal = prof?.name || u?.name;
+    if (nameVal && typeof nameVal === "string" && nameVal.trim()) {
+      const trimmed = nameVal.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+
+    // 3. Check username
+    const usernameVal = u?.username;
+    if (usernameVal && typeof usernameVal === "string" && usernameVal.trim()) {
+      const trimmed = usernameVal.trim();
+      const cleaned = trimmed.includes("@") ? trimmed.split("@")[0].trim() : trimmed;
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      if (words.length > 2) return `${words[0]} ${words[words.length - 1]}`;
+      return cleaned;
+    }
+
+    return fallback;
   };
 
-  const displayName = getFormattedName(profile?.name || "", "Student");
+  const displayName = getFormattedName(profile, localUser, "Student");
+
+  const displayEmail =
+    profile?.email ||
+    localUser?.email ||
+    (typeof localUser?.username === "string" && localUser.username.includes("@")
+      ? localUser.username
+      : "");
 
   const initials = displayName
     ? displayName
@@ -269,7 +318,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
         .map((n) => n[0])
         .join("")
         .toUpperCase()
-    : "ST";
+    : "S";
 
   const getStatusBadge = (status: string) => {
     if (status === "approved") {
@@ -297,7 +346,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/20 border border-slate-800 text-sm font-semibold transition-all">
@@ -312,15 +361,15 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 flex-col z-30">
         <div className="px-7 py-7">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 overflow-hidden">
+            <div className="w-10 h-10 rounded-full logo-circle-white flex items-center justify-center p-1.5 shadow-md overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-8 h-8 object-contain scale-125"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <div className="font-extrabold text-xl tracking-tight text-slate-900">
+              <div className="font-extrabold text-xl tracking-tight">
                 Careergize<span className="text-brand-primary">.</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">
@@ -368,7 +417,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
                 {displayName}
               </p>
               <p className="text-xs text-slate-400 truncate">
-                {profile?.email || ""}
+                {displayEmail}
               </p>
             </div>
           </div>
@@ -389,15 +438,15 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
       <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200">
         <div className="px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-primary text-white flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 rounded-full logo-circle-white flex items-center justify-center p-1 shadow-sm overflow-hidden shrink-0">
               <img
                 src={careergizeLogo}
                 alt="Careergize Logo"
-                className="w-9 h-9 object-contain scale-110"
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <div className="font-extrabold text-lg text-slate-900">
+              <div className="font-extrabold text-lg">
                 Careergize<span className="text-brand-primary">.</span>
               </div>
               <div className="text-[9px] uppercase tracking-[0.18em] text-slate-400 font-bold">
