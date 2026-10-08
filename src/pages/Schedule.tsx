@@ -391,7 +391,7 @@ export default function Schedule() {
         .split(" ")
         .filter(Boolean)
         .slice(0, 2)
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .join("")
         .toUpperCase()
     : "S";

@@ -101,22 +101,49 @@ export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [user, setUser] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   useEffect(() => {
-    const loggedInStudentId = localStorage.getItem("loggedInStudentId");
-    const loggedInUser = localStorage.getItem("loggedInUser");
+  const loggedInStudentId = localStorage.getItem("loggedInStudentId");
+  const loggedInUser = localStorage.getItem("loggedInUser");
 
-    if (!loggedInStudentId || !loggedInUser) {
-      navigate("/login");
-      return;
-    }
+  if (!loggedInStudentId || !loggedInUser) {
+    navigate("/login");
+    return;
+  }
 
-    try {
-      setUser(JSON.parse(loggedInUser));
-    } catch {
-      navigate("/login");
-    }
-  }, [navigate]);
+  try {
+    setUser(JSON.parse(loggedInUser));
+  } catch {
+    navigate("/login");
+    return;
+  }
+
+  const token = localStorage.getItem("authToken");
+
+  if (token) {
+    fetch("http://127.0.0.1:8000/api/dashboard/", {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard data");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+       
+       setDashboardData(data);
+     
+      })
+      .catch((error) => {
+        console.error("Failed to load dashboard data:", error);
+      });
+  }
+}, [navigate]);
 
   const getFormattedName = (u: any) => {
     if (u?.first_name || u?.last_name) {
@@ -162,32 +189,14 @@ export default function Dashboard() {
     streak: 0,
     progress: 0,
     goal: "Software Developer",
-    courses: [
-      {
-        title: "Python Full Stack Development",
-        category: "Development",
-        progress: 0,
-        lessons: "0 / 25 lessons",
-        icon: "🐍",
-        level: "Beginner",
-      },
-      {
-        title: "React & Modern Frontend",
-        category: "Frontend",
-        progress: 0,
-        lessons: "0 / 25 lessons",
-        icon: "⚛️",
-        level: "Beginner",
-      },
-      {
-        title: "AI & Generative AI",
-        category: "Artificial Intelligence",
-        progress: 0,
-        lessons: "0 / 26 lessons",
-        icon: "🤖",
-        level: "Beginner",
-      },
-    ],
+    courses: dashboardData?.courses?.map((course: any) => ({
+  title: course.title,
+  category: course.category || "General",
+  progress: course.progress || 0,
+  lessons: `${course.completed_lessons || 0} / ${course.total_lessons || 0} lessons`,
+  icon: course.icon || "📚",
+  level: course.level || "Beginner",
+})) || [],
   };
 
   const handleLogout = () => {

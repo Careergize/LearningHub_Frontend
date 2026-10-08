@@ -1053,7 +1053,7 @@ export default function MyLearning() {
   const [user, setUser] = useState<any>(null);
 
   // Courses & Filters State
-  const [courses, setCourses] = useState<EnrolledCourse[]>(initialEnrolledCourses);
+  const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [statusFilter, setStatusFilter] = useState<"All" | "in_progress" | "completed">("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
@@ -1067,7 +1067,7 @@ export default function MyLearning() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Course Notes & PDF Resources State
-  const [notesCourseFilter, setNotesCourseFilter] = useState<string>("all");
+  const [notesCourseFilter, setNotesCourseFilter] = useState<string | number>("all");
   const [notesTypeFilter, setNotesTypeFilter] = useState<string>("all");
   const [notesSearchQuery, setNotesSearchQuery] = useState<string>("");
   const [onlyBookmarked, setOnlyBookmarked] = useState<boolean>(false);
@@ -1088,6 +1088,32 @@ export default function MyLearning() {
         setUser(null);
       }
     }
+  }, []);
+  useEffect(() => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) return;
+
+  fetch("http://127.0.0.1:8000/api/dashboard/", {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch enrolled courses");
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      if (Array.isArray(data.courses)) {
+        setCourses(data.courses);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching enrolled courses:", error);
+    });
   }, []);
 
   useEffect(() => {
@@ -1153,7 +1179,7 @@ export default function MyLearning() {
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
-      .map((n) => n[0])
+      .map((n: string) => n[0])
       .join("")
       .toUpperCase()
     : "S";
@@ -2182,12 +2208,12 @@ export default function MyLearning() {
                       <span>All Courses</span>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${notesCourseFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
                         }`}>
-                        {courseNotesData.length}
+                        {backendNotes.length}
                       </span>
                     </button>
 
                     {courses.map((course) => {
-                      const count = courseNotesData.filter((n) => n.courseId === course.id).length;
+                      const count = backendNotes.filter((n) => n.courseId === course.id).length;
                       const isSelected = notesCourseFilter === course.id;
                       return (
                         <button

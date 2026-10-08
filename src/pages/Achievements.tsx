@@ -443,6 +443,45 @@ const DEFAULT_SUMMARY = {
 ========================================================= */
 
 export default function Achievements() {
+  const handleDownloadTranscript = async () => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/transcript/",
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to generate transcript");
+    }
+
+    const blob = await response.blob();
+
+
+
+const url = window.URL.createObjectURL(blob);
+const link = document.createElement("a");
+
+link.href = url;
+link.download = "student-transcript.pdf";
+
+document.body.appendChild(link);
+link.click();
+link.remove();
+
+window.URL.revokeObjectURL(url);
+
+showToast("Student transcript downloaded successfully!");
+  } catch (error) {
+    console.error("Failed to download transcript:", error);
+    showToast("Failed to generate transcript.");
+  }
+};
   const navigate = useNavigate();
 
   // Mobile menu state
@@ -614,21 +653,22 @@ export default function Achievements() {
   };
 
   const studentName = getFormattedName(user);
-  const studentEmail =
-    user?.email ||
-    (typeof user?.username === "string" && user.username.includes("@")
-      ? user.username
-      : "suku@gmail.com");
-  const studentInitials = studentName
-    ? studentName
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-    : "S";
 
+const studentEmail =
+  user?.email ||
+  (typeof user?.username === "string" && user.username.includes("@")
+    ? user.username
+    : "Not available");
+
+const studentInitials = studentName
+  ? studentName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+  : "S";
   const totalXp = achievementSummary.total_xp;
   const unlockedBadges = achievementSummary.unlocked_count;
   const totalBadges = achievementSummary.total_count;
@@ -759,7 +799,7 @@ export default function Achievements() {
       case "user":
         return <User className={className} />;
       case "brain":
-        return <Brain className={className} />;
+          return <Brain className={className} />;
       case "cloud":
         return <Award className={className} />;
       case "medal":
@@ -789,7 +829,7 @@ export default function Achievements() {
   }
 
   // Helper custom Vector DB icon
-  function VectorDbIcon({ className }: { className: string }) {
+function VectorDbIcon({ className }: { className: string }) {
     return (
       <svg
         className={className}
@@ -839,7 +879,7 @@ export default function Achievements() {
 
   // Copy Credential Link
   const handleCopyCredential = (cert: CertificateItem) => {
-    const url = `https://careergize.com/verify/${cert.credentialId}`;
+    const url = `http://127.0.0.1:8000/api/certificates/verify/${cert.credentialId}/`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url);
     }
@@ -850,18 +890,49 @@ export default function Achievements() {
   const handleShareLinkedIn = (cert: CertificateItem) => {
     showToast(`Opening LinkedIn Certificate Share Dialog for "${cert.title}"...`);
     const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      `https://careergize.com/verify/${cert.credentialId}`
+      `http://127.0.0.1:8000/api/certificates/verify/${cert.credentialId}/`
     )}`;
     window.open(shareUrl, "_blank", "noopener,noreferrer");
   };
 
   // Download PDF simulation
-  const handleDownloadPDF = (title: string) => {
-    showToast(`Preparing high-resolution PDF for "${title}"...`);
-    setTimeout(() => {
-      showToast(`Downloaded verified certificate PDF!`);
-    }, 1200);
-  };
+  const handleDownloadPDF = async (certificateId: string) => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/certificates/${certificateId}/download/`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to download certificate");
+    }
+
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `${certificateId}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    showToast("Certificate PDF downloaded successfully!");
+  } catch (error) {
+    console.error("Failed to download certificate:", error);
+    showToast("Failed to download certificate PDF.");
+  }
+};
 
   return (
     <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
@@ -1065,7 +1136,7 @@ export default function Achievements() {
                 </div>
 
                 <button
-                  onClick={() => showToast("Student transcript generated & downloaded successfully!")}
+                  onClick={handleDownloadTranscript}
                   className="px-4 py-3 bg-brand-primary hover:bg-brand-primary/95 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition cursor-pointer shrink-0"
                 >
                   <Download className="w-4 h-4" />
@@ -1104,7 +1175,7 @@ export default function Achievements() {
                 <span className="text-xs font-bold text-emerald-600 font-extrabold">Active</span>
               </div>
               <p className="text-2xl font-extrabold text-slate-900">
-  {certificates.length} Verified
+  {certificates.filter((cert) => cert.status === "verified").length} Verified
 </p>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">Digital Diplomas</p>
             </div>
@@ -1351,21 +1422,25 @@ export default function Achievements() {
                               <span>View Certificate</span>
                             </button>
 
-                            <button
-                              onClick={() => handleShareLinkedIn(cert)}
-                              title="Share on LinkedIn"
-                              className="p-2.5 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 rounded-xl transition cursor-pointer"
-                            >
-                              <Share2 className="w-3.5 h-3.5" />
-                            </button>
+                            {cert.credentialId && (
+  <button
+    onClick={() => handleShareLinkedIn(cert)}
+    title="Share on LinkedIn"
+    className="p-2.5 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 rounded-xl transition cursor-pointer"
+  >
+    <Share2 className="w-3.5 h-3.5" />
+  </button>
+)}
 
-                            <button
-                              onClick={() => handleCopyCredential(cert)}
-                              title="Copy Verification Link"
-                              className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl transition cursor-pointer"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
+                            {cert.credentialId && (
+  <button
+    onClick={() => handleCopyCredential(cert)}
+    title="Copy Verification Link"
+    className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl transition cursor-pointer"
+  >
+    <Copy className="w-3.5 h-3.5" />
+  </button>
+)}
                           </>
                         ) : (
                           <div className="w-full py-2.5 px-4 bg-slate-100 text-slate-500 rounded-xl text-xs font-semibold text-center">
@@ -1728,7 +1803,7 @@ export default function Achievements() {
                 </button>
 
                 <button
-                  onClick={() => handleDownloadPDF(selectedCertificate.title)}
+                  onClick={() => handleDownloadPDF(selectedCertificate.credentialId)}
                   className="px-3 py-1.5 text-xs font-bold text-white bg-brand-primary hover:bg-brand-primary/95 rounded-lg flex items-center gap-1.5 transition cursor-pointer shadow-xs"
                 >
                   <Download className="w-3.5 h-3.5" />

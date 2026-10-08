@@ -178,7 +178,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
   const handleAddSkill = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const newSkill = skillInput.trim();
-    if (!newSkill) return;
+    
 
     if (!formData.skills?.includes(newSkill)) {
       setFormData((prev) => ({
@@ -209,12 +209,12 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
       if (token) {
         headers["Authorization"] = `Token ${token}`;
       }
-
+      
       let response = await fetch(API_URL, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify(formData),
-      });
+  method: "PUT",
+  headers,
+  body: JSON.stringify(formData),
+});
 
       // If backend only implements PUT (HTTP 405 Method Not Allowed), fallback to PUT
       if (response.status === 405) {

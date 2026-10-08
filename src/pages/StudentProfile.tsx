@@ -93,10 +93,12 @@ const StudentProfile = () => {
   const [error, setError] = useState("");
 
   const [newSkill, setNewSkill] = useState("");
+  const [learningProgress, setLearningProgress] = useState(0);
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+  fetchProfile();
+  fetchLearningProgress();
+}, []);
 
   const fetchProfile = async () => {
     try {
@@ -110,10 +112,16 @@ const StudentProfile = () => {
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/profile/${userId}/`
-      );
+      const token = localStorage.getItem("authToken");
 
+const response = await fetch(
+  `${API_URL}/profile/${userId}/`,
+  {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }
+);
       if (!response.ok) {
         throw new Error("Failed to load profile");
       }
@@ -134,6 +142,53 @@ const StudentProfile = () => {
       setLoading(false);
     }
   };
+  const fetchLearningProgress = async () => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      return;
+    }
+
+    const response = await fetch(
+      `${API_URL}/dashboard/`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to load learning progress");
+    }
+
+    const data = await response.json();
+
+    if (Array.isArray(data.courses) && data.courses.length > 0) {
+      const totalProgress = data.courses.reduce(
+        (sum: number, course: any) =>
+          sum + (course.progress || 0),
+        0
+      );
+
+      const averageProgress = Math.round(
+        totalProgress / data.courses.length
+      );
+
+      setLearningProgress(averageProgress);
+    } else {
+      setLearningProgress(0);
+    }
+  } catch (error) {
+    console.error(
+      "Error fetching learning progress:",
+      error
+    );
+  }
+};
+
+
 
   const handleEdit = () => {
     if (!profile) return;
@@ -221,9 +276,11 @@ const StudentProfile = () => {
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
-          },
+  "Content-Type": "application/json",
+  Authorization: `Token ${localStorage.getItem("authToken")}`,
+},
           body: JSON.stringify({
+            name: editProfile.name,
             phone: editProfile.phone,
             date_of_birth:
               editProfile.date_of_birth || null,
@@ -1049,7 +1106,7 @@ const StudentProfile = () => {
               </div>
 
               <span className="text-lg font-bold text-blue-600">
-                0%
+                {learningProgress}%
               </span>
 
             </div>
@@ -1058,7 +1115,7 @@ const StudentProfile = () => {
             <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 rounded-full"
-                style={{ width: "0%" }}
+                style={{ width: `${learningProgress}%` }}
               />
             </div>
 
