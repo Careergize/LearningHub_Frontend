@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+# Automated test artifacts & screenshots
+screenshot_*.png
+temp_chrome_profile/

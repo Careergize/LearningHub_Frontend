@@ -1931,7 +1931,7 @@ export default function MyLearning() {
                           </div>
 
                           <div className="text-right">
-                            <span className="text-[11px] font-bold text-slate-500 bg-white/70 backdrop-blur-xs px-2.5 py-1 rounded-lg">
+                            <span className="text-[11px] font-bold text-slate-800 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-white/60 shadow-2xs">
                               {course.level}
                             </span>
                           </div>

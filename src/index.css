@@ -83,10 +83,23 @@
   color-scheme: dark;
 }
 
-/* Base override for root containers */
+/* Base override for root containers: Ensure rich dark background covers html, body, and root */
+html:has(.student-dark-theme),
+body:has(.student-dark-theme),
+.student-dark-theme,
 .student-dark-theme.bg-slate-50,
 .student-dark-theme.bg-gray-100 {
-  background-color: transparent !important;
+  background-color: #090d16 !important;
+}
+
+/* Universal Headings in Student Portal */
+.student-dark-theme h1,
+.student-dark-theme h2,
+.student-dark-theme h3,
+.student-dark-theme h4,
+.student-dark-theme h5,
+.student-dark-theme h6 {
+  color: #f8fafc;
 }
 
 /* Sidebar & Desktop/Mobile Navigation Headers */
@@ -98,6 +111,12 @@
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
+/* Sidebar & Header Brand Title */
+.student-dark-theme aside div.font-extrabold,
+.student-dark-theme header div.font-extrabold {
+  color: #f8fafc !important;
+}
+
 /* Cards & Elevated Containers */
 .student-dark-theme .bg-white {
   background-color: rgba(16, 23, 40, 0.80) !important;
@@ -107,17 +126,45 @@
   color: #f8fafc !important;
 }
 
+.student-dark-theme .bg-white\/70,
 .student-dark-theme .bg-white\/80,
 .student-dark-theme .bg-white\/90 {
   background-color: rgba(16, 23, 40, 0.86) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
 }
 
-/* Sub-containers, Meta Panels, Chip Badges */
+.student-dark-theme .bg-white\/70 span,
+.student-dark-theme span.bg-white\/70 {
+  color: #f8fafc !important;
+}
+
+/* Card Gradient Overrides: Prevent white/silver washed-out boxes in dark theme */
+.student-dark-theme .from-brand-primary\/5.via-white.to-slate-50,
+.student-dark-theme [class*="via-white"] {
+  background-image: none !important;
+  background-color: rgba(16, 23, 40, 0.80) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+  color: #f8fafc !important;
+}
+
+/* Sub-containers, Meta Panels, Chip Badges & Variants */
 .student-dark-theme .bg-slate-50,
 .student-dark-theme .bg-slate-100,
+.student-dark-theme .bg-slate-200,
 .student-dark-theme .bg-gray-50,
-.student-dark-theme .bg-gray-100 {
+.student-dark-theme .bg-gray-100,
+.student-dark-theme .bg-gray-200,
+.student-dark-theme .bg-brand-surface,
+.student-dark-theme .bg-brand-surface\/40,
+.student-dark-theme .bg-slate-50\/50,
+.student-dark-theme .bg-slate-50\/60,
+.student-dark-theme .bg-slate-50\/70,
+.student-dark-theme .bg-slate-50\/80,
+.student-dark-theme .bg-slate-100\/80,
+.student-dark-theme .bg-slate-100\/90 {
   background-color: rgba(255, 255, 255, 0.04) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
@@ -162,7 +209,7 @@
 /* Muted Descriptions, Subheadings & Meta Text */
 .student-dark-theme .text-slate-500,
 .student-dark-theme .text-gray-500 {
-  color: #94a3b8 !important;
+  color: #a0aec0 !important;
 }
 
 /* Captions, Timestamps, Labels & Subtle Secondary Info */
@@ -179,6 +226,43 @@
 .student-dark-theme .text-slate-200,
 .student-dark-theme .text-slate-100 {
   color: #f1f5f9 !important;
+}
+
+/* Luminous Brand Accent Overlines & Headings (Fixes dark-blue-on-dark contrast) */
+.student-dark-theme .text-brand-primary {
+  color: #38bdf8 !important;
+}
+
+.student-dark-theme .text-brand-primary-light {
+  color: #7dd3fc !important;
+}
+
+.student-dark-theme .text-brand-secondary {
+  color: #60a5fa !important;
+}
+
+.student-dark-theme .bg-brand-primary\/10 {
+  background-color: rgba(56, 189, 248, 0.15) !important;
+}
+
+.student-dark-theme .bg-brand-primary\/5 {
+  background-color: rgba(56, 189, 248, 0.08) !important;
+}
+
+.student-dark-theme .border-brand-primary\/20,
+.student-dark-theme .border-brand-primary\/30,
+.student-dark-theme .border-brand-primary\/40 {
+  border-color: rgba(56, 189, 248, 0.35) !important;
+}
+
+/* Active Navigation Item */
+.student-dark-theme nav button.bg-brand-primary\/10 {
+  background-color: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+}
+.student-dark-theme nav button.bg-brand-primary\/10 .bg-brand-primary {
+  background-color: #38bdf8 !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
 }
 
 /* =========================================================

@@ -1324,26 +1324,29 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
                   </div>
 
                   {/* Academic Track Card */}
-                  <div className="bg-gradient-to-br from-brand-primary/5 via-white to-slate-50 rounded-3xl border border-brand-primary/20 p-6 sm:p-8 shadow-xs">
-                    <div className="flex items-center gap-2 text-xs font-extrabold text-brand-primary uppercase tracking-wider mb-2">
-                      <Award className="w-4 h-4" />
-                      <span>Academic Pathway</span>
-                    </div>
+                  <div className="bg-white rounded-3xl border border-brand-primary/25 p-6 sm:p-8 shadow-xs relative overflow-hidden">
+                    <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-brand-primary/10 blur-2xl pointer-events-none" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 text-xs font-extrabold text-brand-primary uppercase tracking-wider mb-2">
+                        <Award className="w-4 h-4" />
+                        <span>Academic Pathway</span>
+                      </div>
 
-                    <h4 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                      {profile.course || "Full Stack Engineering"}
-                    </h4>
+                      <h4 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                        {profile.course || "Full Stack Engineering"}
+                      </h4>
 
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                      Enrolled and actively participating in the Careergize Learning Hub syllabus.
-                    </p>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                        Enrolled and actively participating in the Careergize Learning Hub syllabus.
+                      </p>
 
-                    <div className="mt-5 pt-4 border-t border-brand-primary/10 flex items-center justify-between text-xs font-bold">
-                      <span className="text-slate-600">Verification</span>
-                      <span className="text-brand-primary flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" />
-                        <span>Certified Cohort</span>
-                      </span>
+                      <div className="mt-5 pt-4 border-t border-brand-primary/15 flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-600">Verification</span>
+                        <span className="text-brand-primary flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" />
+                          <span>Certified Cohort</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
