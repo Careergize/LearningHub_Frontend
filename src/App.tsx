@@ -114,41 +114,39 @@ function AdminDashboard() {
      FETCH STUDENTS
   --------------------------------------------------------- */
 
-  const fetchStudents = async () => {
+  
+const fetchStudents = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-    try {
+    const token = localStorage.getItem("authToken");
 
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/students/"
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch students.");
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/students/",
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
       }
+    );
 
-      const data = await response.json();
-
-      setStudents(data);
-
-    } catch (error) {
-
-      console.error("Fetch students error:", error);
-
-      setError(
-        "Unable to load students. Please make sure the backend is running."
-      );
-
-    } finally {
-
-      setLoading(false);
-
+    if (!response.ok) {
+      throw new Error(`Failed to fetch students: ${response.status}`);
     }
-  };
 
+    const data = await response.json();
+    setStudents(data);
+  } catch (error) {
+    console.error("Fetch students error:", error);
 
+    setError(
+      "Unable to load students. Please make sure the backend is running."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   /* ---------------------------------------------------------
      FETCH ON PAGE LOAD
   --------------------------------------------------------- */
@@ -177,8 +175,9 @@ function AdminDashboard() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
-          },
+  "Content-Type": "application/json",
+  Authorization: `Token ${localStorage.getItem("authToken")}`,
+},
 
           body: JSON.stringify({
             student_id: studentId,

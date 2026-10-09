@@ -213,21 +213,8 @@ export default function Schedule() {
     streak: 14,
   });
 
-  // Class Sessions State (defaults to INITIAL_SCHEDULE if backend or storage is empty)
-  const [sessions, setSessions] = useState<ClassSession[]>(() => {
-    try {
-      const saved = localStorage.getItem("cg_unified_schedule");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch {
-      // ignore
-    }
-    return INITIAL_SCHEDULE;
-  });
+  // Class Sessions State — backend data only
+const [sessions, setSessions] = useState<ClassSession[]>([]);
 
   // Active day filter on the weekly calendar strip: "All" | "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat"
   const [selectedDayFilter, setSelectedDayFilter] = useState<string>("All");
@@ -323,28 +310,37 @@ export default function Schedule() {
       .then((data) => {
         const sessionsData = data.results ?? data;
 
-        if (Array.isArray(sessionsData) && sessionsData.length > 0) {
-          const mappedSessions: ClassSession[] = sessionsData.map((session: any) => ({
-            id: session.id.toString(),
-            course: session.course,
-            topic: session.topic,
-            dayOfWeek: session.dayOfWeek,
-            date: session.date,
-            month: session.month,
-            fullDate: session.fullDate,
-            time: session.time,
-            instructor: session.instructor,
-            platform: session.platform,
-            meetUrl: session.meet_url,
-            isToday: session.isToday,
-            status: session.status,
-            attendance: session.attendance,
-            checkInTime: session.checkInTime ?? undefined,
-            items: session.items ?? [],
-          }));
+        const mappedSessions: ClassSession[] = Array.isArray(sessionsData)
+  ? sessionsData.map((session: any) => {
+      const dateParts = session.date.split("-");
+
+      return {
+        id: session.id.toString(),
+        course: session.course,
+        topic: session.topic,
+        dayOfWeek: session.dayOfWeek,
+        date: dateParts[2],
+        month: dateParts[1]
+          ? new Date(`${session.date}T00:00:00`)
+              .toLocaleString("en-US", { month: "short" })
+              .toUpperCase()
+          : session.month,
+        fullDate: session.fullDate,
+        time: session.time,
+        instructor: session.instructor,
+        platform: session.platform,
+        meetUrl: session.meet_url || "",
+        isToday: session.isToday,
+        status: session.status,
+        attendance: session.attendance,
+        checkInTime: session.checkInTime ?? undefined,
+        items: session.items ?? [],
+      };
+    })
+  : [];
 
           setSessions(mappedSessions);
-        }
+        
       })
       .catch((error) => {
         console.error("Schedule fetch error:", error);
@@ -924,16 +920,29 @@ export default function Schedule() {
                         </div>
                       )}
 
-                      {/* Join Meeting Link */}
-                      <a
-                        href={session.meetUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary/90 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
-                      >
-                        <Video className="w-3.5 h-3.5" />
-                        <span>Join Class</span>
-                      </a>
+                      
+{/* Join Meeting Link */}
+<a
+  href={session.meetUrl || undefined}
+  target={session.meetUrl ? "_blank" : undefined}
+  rel={session.meetUrl ? "noreferrer" : undefined}
+  onClick={(e) => {
+    if (!session.meetUrl) {
+      e.preventDefault();
+    }
+  }}
+  aria-disabled={!session.meetUrl}
+  className={`px-4 py-2 rounded-xl bg-brand-primary text-white font-bold text-xs flex items-center gap-1.5 transition shadow-2xs ${
+    session.meetUrl
+      ? "hover:bg-brand-primary/90 cursor-pointer"
+      : "opacity-50 cursor-not-allowed"
+  }`}
+>
+  <Video className="w-3.5 h-3.5" />
+  <span>{session.meetUrl ? "Join Class" : "Meeting Link Unavailable"}</span>
+</a>
+
+
 
                       {/* Collapse/Expand Checklist */}
                       <button

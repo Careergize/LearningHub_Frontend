@@ -39,6 +39,9 @@ const AdminLogin: React.FC = () => {
       }
 
       localStorage.setItem("adminUser", JSON.stringify(data.user));
+      if (data.token) {
+  localStorage.setItem("authToken", data.token);
+}
 
       navigate("/admin-dashboard");
     } catch (error) {

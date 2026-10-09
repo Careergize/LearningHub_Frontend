@@ -102,6 +102,7 @@ export default function Dashboard() {
 
   const [user, setUser] = useState<any>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [upcomingClassesData, setUpcomingClassesData] = useState<any[]>([]);
 
   useEffect(() => {
   const loggedInStudentId = localStorage.getItem("loggedInStudentId");
@@ -137,6 +138,42 @@ export default function Dashboard() {
       .then((data) => {
        
        setDashboardData(data);
+       
+fetch("http://127.0.0.1:8000/api/schedule/", {
+  headers: {
+    Authorization: `Token ${token}`,
+  },
+})
+  .then(async (response) => {
+    if (!response.ok) {
+      throw new Error("Failed to fetch schedule data");
+    }
+    return response.json();
+  })
+  .then((scheduleData) => {
+    const sessions = scheduleData.results ?? scheduleData;
+
+    const upcoming = Array.isArray(sessions)
+      ? sessions
+          .filter((session: any) => session.status !== "completed")
+          .map((session: any) => ({
+            date: session.date.split("-")[2],
+            month: new Date(`${session.date}T00:00:00`)
+              .toLocaleString("en-US", { month: "short" })
+              .toUpperCase(),
+            title: session.topic,
+            time: session.time,
+            type: "Live Class",
+          }))
+      : [];
+
+    setUpcomingClassesData(upcoming);
+  })
+  .catch((error) => {
+    console.error("Failed to load upcoming sessions:", error);
+  });
+
+
      
       })
       .catch((error) => {
@@ -185,15 +222,23 @@ export default function Dashboard() {
     email: studentEmail,
     role: "Learner",
     level: 1,
-    xp: 0,
-    streak: 0,
-    progress: 0,
-    goal: "Software Developer",
+xp: 0,
+streak: 0,
+progress: dashboardData?.courses?.length
+  ? Math.round(
+      dashboardData.courses.reduce(
+        (total: number, course: any) =>
+          total + (course.progress || 0),
+        0
+      ) / dashboardData.courses.length
+    )
+  : 0,
+goal: dashboardData?.student?.career_goal || "Software Developer",
     courses: dashboardData?.courses?.map((course: any) => ({
   title: course.title,
   category: course.category || "General",
   progress: course.progress || 0,
-  lessons: `${course.completed_lessons || 0} / ${course.total_lessons || 0} lessons`,
+  lessons: `${course.completedLessons || 0} / ${course.totalLessons || 0} lessons`,
   icon: course.icon || "📚",
   level: course.level || "Beginner",
 })) || [],
@@ -658,7 +703,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-3">
-                  {upcomingClasses.map((item) => (
+                  {upcomingClassesData.map((item) => (
                     <div
                       key={`${item.date}-${item.title}`}
                       className="flex items-center gap-3.5 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition duration-150"
@@ -685,6 +730,11 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+                                    {upcomingClassesData.length === 0 && (
+                    <p className="text-sm text-slate-500 text-center py-4">
+                      No upcoming sessions scheduled.
+                    </p>
+                  )}
                 </div>
               </div>
 

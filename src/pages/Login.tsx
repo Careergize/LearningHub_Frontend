@@ -60,7 +60,7 @@ const Login: React.FC = () => {
         JSON.stringify(data.user)
       );
 
-      navigate("/dashboard");
+      navigate(data.user.is_staff ? "/admin-dashboard" : "/dashboard");
     } catch (error) {
       console.error("Login error:", error);
 

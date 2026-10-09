@@ -501,12 +501,17 @@ showToast("Student transcript downloaded successfully!");
   const [selectedBadge, setSelectedBadge] = useState<AchievementBadge | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [badges, setBadges] = useState<AchievementBadge[]>(INITIAL_BADGES);
-  const [certificates, setCertificates] = useState<CertificateItem[]>(INITIAL_CERTIFICATES);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>(LEADERBOARD_USERS);
-
-  const [achievementSummary, setAchievementSummary] = useState(DEFAULT_SUMMARY);
-
+const [badges, setBadges] = useState<AchievementBadge[]>([]);
+const [certificates, setCertificates] = useState<CertificateItem[]>([]);
+const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+const [achievementSummary, setAchievementSummary] = useState({
+  total_xp: 0,
+  unlocked_count: 0,
+  total_count: 0,
+  rank: null as number | null,
+  total_students: 0,
+  top_percentage: null as number | null,
+});
   // Load User from LocalStorage
   useEffect(() => {
     const loggedInUser = localStorage.getItem("loggedInUser");
@@ -525,7 +530,7 @@ showToast("Student transcript downloaded successfully!");
         if (!token) return;
 
         const response = await fetch(
-          "http://127.0.0.1:8000/api/achievements/",
+          "http://127.0.0.1:8000/api/learning/achievements/",
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -538,6 +543,7 @@ showToast("Student transcript downloaded successfully!");
         }
 
         const data = await response.json();
+        console.log("Summary from API:", data.summary);
 
         if (data.summary && (data.summary.total_count > 0 || data.summary.total_xp > 0)) {
           setAchievementSummary(data.summary);
@@ -575,53 +581,63 @@ showToast("Student transcript downloaded successfully!");
     fetchAchievements();
   }, []);
 
-  useEffect(() => {
-    const fetchCertificates = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
+  
+useEffect(() => {
+  const fetchCertificates = async () => {
+    const token = localStorage.getItem("authToken");
 
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/certificates/",
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          }
-        );
+    if (!token) {
+      setCertificates([]);
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch certificates");
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/learning/certificates/",
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        const data = await response.json();
-
-        if (Array.isArray(data) && data.length > 0) {
-          const formattedCertificates: CertificateItem[] = data.map(
-            (cert: any) => ({
-              id: String(cert.id),
-              title: cert.title,
-              track: cert.track || cert.category || "General",
-              credentialId: cert.credential_id || cert.credentialId || "PENDING",
-              issueDate: cert.issue_date || cert.issueDate || "In Progress",
-              expiryDate: cert.expiry_date || cert.expiryDate || "Lifetime / Permanent",
-              instructor: cert.instructor || cert.issuer || "Instructor",
-              skills: cert.skills || [],
-              status: cert.status || "in_progress",
-              progress: cert.progress,
-              remainingModules: cert.remaining_modules || cert.remainingModules,
-              verificationHash: cert.verification_hash || cert.verificationHash || "PENDING",
-            })
-          );
-          setCertificates(formattedCertificates);
-        }
-      } catch (error) {
-        console.error("Failed to load certificates, preserving defaults:", error);
+      if (!response.ok) {
+        throw new Error(`Certificates API failed: ${response.status}`);
       }
-    };
 
-    fetchCertificates();
-  }, []);
+      const data = await response.json();
+
+      const formattedCertificates: CertificateItem[] = (
+        Array.isArray(data) ? data : []
+      ).map((cert: any) => ({
+        id: String(cert.id),
+        title: cert.title || "Untitled Course",
+        track: cert.track || cert.category || "General",
+        credentialId: cert.credentialId || cert.credential_id || "",
+        issueDate: cert.issueDate || cert.issue_date || "",
+        expiryDate: cert.expiryDate || cert.expiry_date || "",
+        grade: cert.grade || "",
+        instructor: cert.instructor || cert.issuer || "Instructor",
+        skills: Array.isArray(cert.skills) ? cert.skills : [],
+        status: cert.status === "verified" ? "verified" : "in_progress",
+        progress: cert.progress ?? 0,
+        remainingModules:
+          cert.remainingModules || cert.remaining_modules || "",
+        verificationHash:
+          cert.verificationHash || cert.verification_hash || "",
+      }));
+
+      // Also clears old sample certificates if the backend returns [].
+      setCertificates(formattedCertificates);
+    } catch (error) {
+      console.error("Failed to load certificates:", error);
+      setCertificates([]);
+    }
+  };
+
+  fetchCertificates();
+}, []);
 
 
   const getFormattedName = (u: any, fallback = "Student") => {
@@ -1122,9 +1138,10 @@ function VectorDbIcon({ className }: { className: string }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Learner Tier</span>
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                        Top {topPercentage ?? "-"}%
-                      </span>
+                      
+<span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+  {topPercentage != null ? `Top ${topPercentage}%` : "Unranked"}
+</span>
                     </div>
                     <div className="text-base font-extrabold text-slate-900">
                      Level {currentLevel} • {leaderboard.find((u) => u.email === studentEmail)?.tier || "Learner"}
@@ -1252,7 +1269,7 @@ function VectorDbIcon({ className }: { className: string }) {
                 }`}
               >
                 <Award className="w-3.5 h-3.5" />
-                <span>Badges ({INITIAL_BADGES.length})</span>
+                <span>Badges ({badges.length})</span>
               </button>
 
               <button
@@ -1500,8 +1517,12 @@ function VectorDbIcon({ className }: { className: string }) {
                     className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 cursor-pointer"
                   >
                     <option value="all">All Statuses</option>
-                    <option value="unlocked">Unlocked Only (12)</option>
-                    <option value="locked">In Progress / Locked (6)</option>
+                    <option value="unlocked">
+  Unlocked Only ({badges.filter((badge) => badge.unlocked).length})
+</option>
+<option value="locked">
+  In Progress / Locked ({badges.filter((badge) => !badge.unlocked).length})
+</option>
                   </select>
                 </div>
               </div>
@@ -1640,12 +1661,18 @@ function VectorDbIcon({ className }: { className: string }) {
                   </p>
                 </div>
 
-                <div className="p-2.5 px-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
-                  <span className="text-xs font-bold text-slate-500">Your Cohort Rank:</span>
-                  <span className="text-sm font-extrabold text-brand-primary">
-                    #{rank ?? 4} of {achievementSummary.total_students || 128} Learners
-                  </span>
-                </div>
+                
+<div className="p-2.5 px-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+  <span className="text-xs font-bold text-slate-500">
+    Your Cohort Rank:
+  </span>
+  <span className="text-sm font-extrabold text-brand-primary">
+    {rank != null ? `#${rank}` : "Unranked"} of{" "}
+    {achievementSummary.total_students} Learners
+  </span>
+</div>
+
+
               </div>
 
               {/* Leaderboard Table */}
