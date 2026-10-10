@@ -48,6 +48,7 @@ export type CourseStatus = "in_progress" | "completed";
 
 export interface EnrolledCourse {
   id: string;
+  courseId?: number;
   title: string;
   category: string;
   level: "Beginner" | "Intermediate" | "Advanced" | "Beginner to Pro";
@@ -1133,7 +1134,13 @@ export default function MyLearning() {
         return response.json();
       })
       .then((data) => {
-        setBackendNotes(data.results || []);
+        setBackendNotes(
+  (data.results || []).map((note: CourseNote) => ({
+    ...note,
+    courseId: `cg-course-${String(note.courseId).padStart(3, "0")}`,
+  }))
+);
+        console.log("Notes API response:", data.results || data);
       })
       .catch((error) => {
         console.error("Error fetching notes:", error);
@@ -1291,10 +1298,16 @@ export default function MyLearning() {
 
   // Filtered Notes computation
   const filteredNotes = useMemo(() => {
+    console.log("Selected course filter:", notesCourseFilter);
     return backendNotes.filter((note) => {
       // Filter by enrolled course
-      if (notesCourseFilter !== "all" && note.courseId !== notesCourseFilter) {
-        return false;
+if (
+  notesCourseFilter !== "all" &&
+  String(note.courseId) !== String(notesCourseFilter)
+) {
+  return false;
+
+
       }
       // Filter by document type
       if (notesTypeFilter !== "all" && note.type !== notesTypeFilter) {
@@ -1407,19 +1420,24 @@ export default function MyLearning() {
       return updated;
     });
   };
+// Jump from Course Card to Notes section
+const handleJumpToCourseNotes = (courseId: string) => {
+  setNotesCourseFilter(courseId);
 
-  // Jump from Course Card to Notes section
-  const handleJumpToCourseNotes = (courseId: string) => {
-    setNotesCourseFilter(courseId);
-    const el = document.getElementById("course-notes-section");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-    const targetCourse = courses.find((c) => c.id === courseId);
-    if (targetCourse) {
-      triggerToast(`Viewing course PDF notes for ${targetCourse.title}`);
-    }
-  };
+  const el = document.getElementById("course-notes-section");
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  }
+
+  const targetCourse = courses.find(
+    (c) => String(c.courseId ?? c.id) === courseId
+  );
+
+  if (targetCourse) {
+    triggerToast(`Viewing course PDF notes for ${targetCourse.title}`);
+  }
+};
+
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -2212,13 +2230,17 @@ export default function MyLearning() {
                       </span>
                     </button>
 
-                    {courses.map((course) => {
-                      const count = backendNotes.filter((n) => n.courseId === course.id).length;
-                      const isSelected = notesCourseFilter === course.id;
+                    {courses.map((course) => {                     
+const selectedCourseId = String(course.courseId ?? course.id);
+const count = backendNotes.filter(
+  (n) => String(n.courseId) === selectedCourseId
+).length;
+const isSelected = notesCourseFilter === selectedCourseId;
+
                       return (
                         <button
                           key={course.id}
-                          onClick={() => setNotesCourseFilter(course.id)}
+                          onClick={() => setNotesCourseFilter(selectedCourseId)}
                           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${isSelected
                               ? "bg-brand-primary text-white shadow-xs"
                               : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -2298,7 +2320,9 @@ export default function MyLearning() {
 
                     {notesCourseFilter !== "all" && (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-semibold">
-                        Course: {courses.find((c) => c.id === notesCourseFilter)?.title || notesCourseFilter}
+                        Course: {courses.find(
+  (c) => String(c.courseId ?? c.id) === notesCourseFilter
+)?.title || notesCourseFilter}
                         <X
                           className="w-3 h-3 cursor-pointer hover:text-brand-primary/70"
                           onClick={() => setNotesCourseFilter("all")}

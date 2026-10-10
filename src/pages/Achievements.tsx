@@ -530,7 +530,7 @@ const [achievementSummary, setAchievementSummary] = useState({
         if (!token) return;
 
         const response = await fetch(
-          "http://127.0.0.1:8000/api/learning/achievements/",
+          "http://127.0.0.1:8000/api/achievements/",
           {
             headers: {
               Authorization: `Token ${token}`,
