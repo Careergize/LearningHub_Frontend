@@ -346,7 +346,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId = 1 }) => {
   };
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900 font-sans">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/20 border border-slate-800 text-sm font-semibold transition-all">

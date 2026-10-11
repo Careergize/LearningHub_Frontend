@@ -387,7 +387,7 @@ Would you like me to generate a complete code example or deep-dive into any spec
   };
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* =========================================================
           DESKTOP SIDEBAR
       ========================================================= */}

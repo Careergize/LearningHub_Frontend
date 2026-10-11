@@ -103,6 +103,7 @@ export interface CourseNote {
 
   downloadUrl?: string | null;
   downloadCount?: number;
+  isBookmarked?: boolean;
 
   previewContent?: {
     summary: string;
@@ -1093,7 +1094,10 @@ export default function MyLearning() {
   useEffect(() => {
   const token = localStorage.getItem("authToken");
 
-  if (!token) return;
+  if (!token) {
+    navigate("/login", { replace: true });
+    return;
+  }
 
   fetch("http://127.0.0.1:8000/api/dashboard/", {
     headers: {
@@ -1109,18 +1113,26 @@ export default function MyLearning() {
     })
     .then((data) => {
       if (Array.isArray(data.courses)) {
-        setCourses(data.courses);
+        setCourses(data.courses.map((course: EnrolledCourse) => ({
+          ...course,
+          id: String(course.id),
+          courseId: Number(course.courseId),
+        })));
       }
     })
     .catch((error) => {
       console.error("Error fetching enrolled courses:", error);
+      triggerToast("Unable to load your enrolled courses.");
     });
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    if (!token) return;
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
     fetch("http://127.0.0.1:8000/api/notes/", {
       headers: {
@@ -1134,18 +1146,18 @@ export default function MyLearning() {
         return response.json();
       })
       .then((data) => {
-        setBackendNotes(
-  (data.results || []).map((note: CourseNote) => ({
-    ...note,
-    courseId: `cg-course-${String(note.courseId).padStart(3, "0")}`,
-  }))
-);
-        console.log("Notes API response:", data.results || data);
+        const notes: CourseNote[] = (data.results || data).map((note: CourseNote) => ({
+          ...note,
+          id: String(note.id),
+          courseId: String(note.courseId),
+        }));
+        setBackendNotes(notes);
+        setBookmarkedNoteIds(notes.filter((note) => note.isBookmarked).map((note) => note.id));
       })
       .catch((error) => {
         console.error("Error fetching notes:", error);
       });
-  }, []);
+  }, [navigate]);
 
   const getFormattedName = (u: any, fallback = "Student") => {
     if (u?.first_name || u?.last_name) {
@@ -1205,6 +1217,7 @@ export default function MyLearning() {
   const handleLogout = () => {
     localStorage.removeItem("loggedInStudentId");
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("authToken");
     navigate("/login");
   };
 
@@ -1288,12 +1301,27 @@ export default function MyLearning() {
     setSearchQuery("");
   };
 
-  const handleShareCertificate = (course: EnrolledCourse) => {
-    setIsCopied(true);
-    triggerToast(`Verification link for ${course.certificateId} copied to clipboard!`);
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 2500);
+  const handleShareCertificate = async (course: EnrolledCourse) => {
+    const token = localStorage.getItem("authToken");
+    if (!token || !course.certificateId) return;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/certificates/${course.certificateId}/share/`, {
+        method: "POST",
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to share certificate: ${response.status}`);
+
+      await response.json();
+      const verificationUrl = new URL(`/api/certificates/verify/${course.certificateId}/`, "http://127.0.0.1:8000").toString();
+      await navigator.clipboard.writeText(verificationUrl);
+      setIsCopied(true);
+      triggerToast(`Verification link for ${course.certificateId} copied to clipboard!`);
+      setTimeout(() => setIsCopied(false), 2500);
+    } catch (error) {
+      console.error("Certificate share error:", error);
+      triggerToast("Unable to share this certificate.");
+    }
   };
 
   // Filtered Notes computation
@@ -1337,6 +1365,10 @@ if (
   const handlePreviewNote = async (note: CourseNote) => {
     try {
       const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
       const response = await fetch(
         `http://127.0.0.1:8000/api/notes/${note.id}/`,
@@ -1353,7 +1385,11 @@ if (
 
       const detailedNote = await response.json();
 
-      setPreviewingNote(detailedNote);
+      setPreviewingNote({
+        ...detailedNote,
+        id: String(detailedNote.id),
+        courseId: String(detailedNote.courseId),
+      });
       setActiveNoteSectionIndex(0);
       setPdfZoom(100);
     } catch (error) {
@@ -1365,6 +1401,10 @@ if (
   const handleDownloadNote = async (note: CourseNote) => {
     try {
       const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
       // Increase download count in backend
       const response = await fetch(
@@ -1411,14 +1451,81 @@ if (
   };
 
   // Bookmark toggle
-  const toggleBookmark = (id: string, e?: React.MouseEvent) => {
+  const toggleBookmark = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setBookmarkedNoteIds((prev) => {
-      const isBookmarked = prev.includes(id);
-      const updated = isBookmarked ? prev.filter((item) => item !== id) : [...prev, id];
-      triggerToast(isBookmarked ? "Removed from saved notes." : "Saved note to revision bookmarks!");
-      return updated;
-    });
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/notes/${id}/bookmark/`, {
+        method: "POST",
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to update note bookmark: ${response.status}`);
+      const data = await response.json();
+      setBookmarkedNoteIds((prev) => data.isBookmarked
+        ? (prev.includes(id) ? prev : [...prev, id])
+        : prev.filter((item) => item !== id));
+      setBackendNotes((prev) => prev.map((note) => note.id === id
+        ? { ...note, isBookmarked: data.isBookmarked }
+        : note));
+      triggerToast(data.isBookmarked ? "Saved note to revision bookmarks!" : "Removed from saved notes.");
+    } catch (error) {
+      console.error("Note bookmark error:", error);
+      triggerToast("Unable to update this bookmark.");
+    }
+  };
+
+  const handleResumeLearning = async () => {
+    if (!resumingCourse) return;
+    const course = resumingCourse;
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/my-courses/${course.id}/resume/`, {
+        method: "POST",
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to resume course: ${response.status}`);
+      const data = await response.json();
+      if (data.nextLesson?.title) {
+        setCourses((prev) => prev.map((item) => item.id === course.id
+          ? { ...item, nextLessonTitle: data.nextLesson.title, lastAccessed: new Date().toISOString() }
+          : item));
+      }
+      setResumingCourse(null);
+      triggerToast(`Launching lesson player for "${course.title}"...`);
+    } catch (error) {
+      console.error("Course resume error:", error);
+      triggerToast("Unable to resume this course. Please try again.");
+    }
+  };
+
+  const handleReviewCourse = async (course: EnrolledCourse) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/my-courses/${course.id}/review/`, {
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to load course review: ${response.status}`);
+      const data = await response.json();
+      setReviewingCourse({ ...course, totalLessons: data.totalLessons ?? course.totalLessons });
+    } catch (error) {
+      console.error("Course review error:", error);
+      triggerToast("Unable to load this course review.");
+    }
   };
 // Jump from Course Card to Notes section
 const handleJumpToCourseNotes = (courseId: string) => {
@@ -1447,7 +1554,7 @@ const handleJumpToCourseNotes = (courseId: string) => {
   };
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900 font-sans">
 
       {/* =========================================================
           DESKTOP SIDEBAR
@@ -2089,7 +2196,7 @@ const handleJumpToCourseNotes = (courseId: string) => {
                           </button>
 
                           <button
-                            onClick={() => setReviewingCourse(course)}
+                            onClick={() => void handleReviewCourse(course)}
                             className="w-full py-2.5 px-3 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                           >
                             <FileText className="w-3.5 h-3.5" />
@@ -2107,11 +2214,11 @@ const handleJumpToCourseNotes = (courseId: string) => {
                       )}
 
                       <button
-                        onClick={() => handleJumpToCourseNotes(course.id)}
+                          onClick={() => handleJumpToCourseNotes(String(course.courseId ?? course.id))}
                         className="w-full py-2 px-3 bg-slate-50 hover:bg-brand-primary/5 hover:border-brand-primary/30 border border-slate-200 text-slate-600 hover:text-brand-primary font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <FileDown className="w-3.5 h-3.5 text-brand-primary" />
-                        <span>Course PDF Notes ({courseNotesData.filter((n) => n.courseId === course.id).length})</span>
+                        <span>Course PDF Notes ({backendNotes.filter((note) => note.courseId === String(course.courseId ?? course.id)).length})</span>
                       </button>
                     </div>
 
@@ -2679,10 +2786,7 @@ const isSelected = notesCourseFilter === selectedCourseId;
               </button>
 
               <button
-                onClick={() => {
-                  setResumingCourse(null);
-                  triggerToast(`Launching lesson player for "${resumingCourse.title}"...`);
-                }}
+                onClick={() => void handleResumeLearning()}
                 className="flex-1 py-3 px-4 rounded-xl bg-brand-primary text-white hover:bg-brand-primary/90 font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
               >
                 <span>Launch Lesson</span>
@@ -2734,7 +2838,7 @@ const isSelected = notesCourseFilter === selectedCourseId;
                 <span className="font-semibold text-slate-700">All Lecture Slides & Notes</span>
                 <button
                   onClick={() => {
-                    const cid = reviewingCourse.id;
+                    const cid = String(reviewingCourse.courseId ?? reviewingCourse.id);
                     setReviewingCourse(null);
                     handleJumpToCourseNotes(cid);
                   }}

@@ -593,7 +593,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/learning/certificates/",
+          "http://127.0.0.1:8000/api/certificates/",
         {
           headers: {
             Authorization: `Token ${token}`,
@@ -951,7 +951,7 @@ function VectorDbIcon({ className }: { className: string }) {
 };
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* =========================================================
           DESKTOP SIDEBAR (Careergize Standard - 100% Theme Matched)
       ========================================================= */}

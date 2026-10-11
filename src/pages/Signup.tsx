@@ -73,7 +73,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="student-dark-theme min-h-screen flex items-center justify-center px-4 relative overflow-hidden py-10">
+    <div className="signup-theme min-h-screen flex items-center justify-center px-4 relative overflow-hidden py-10">
       {/* Ambient background glows */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-500/15 rounded-full blur-[100px] pointer-events-none" />

@@ -285,7 +285,7 @@ goal: dashboardData?.student?.career_goal || "Software Developer",
     : "S";
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900">
 
       {/* Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 flex-col">

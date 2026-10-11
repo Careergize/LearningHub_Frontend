@@ -1,218 +1,40 @@
-import { motion } from "motion/react";
+import { ArrowRight, BadgeCheck, BriefcaseBusiness, Search, Sparkles } from "lucide-react";
+
+const featuredCourses = [
+  { category: "CAREER CERTIFICATE", title: "Frontend Development", partner: "Careergize Academy", detail: "6 courses · Beginner friendly", color: "blue", icon: "⌘" },
+  { category: "SPECIALIZATION", title: "Data Analytics", partner: "Careergize Academy", detail: "4 courses · Build a portfolio", color: "orange", icon: "▥" },
+  { category: "GUIDED PROJECT", title: "AI & Machine Learning", partner: "Careergize Academy", detail: "Learn by building · Flexible", color: "violet", icon: "✳" },
+];
 
 export default function HeroSection() {
-  const stats = [
-    { value: "10,000+", label: "Students" },
-    { value: "250+", label: "Courses" },
-    { value: "500+", label: "Hiring Partners" }
-  ];
-
   return (
-    <header className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-gradient-to-b from-brand-surface via-brand-surface/50 to-white">
-      {/* Decorative background grid blobs */}
-      <div className="absolute top-24 left-12 w-72 h-72 bg-brand-primary/10 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-12 right-24 w-96 h-96 bg-brand-accent/10 rounded-full blur-3xl -z-10"></div>
-
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full relative z-10">
-
-        {/* Left side column */}
-        <div className="space-y-8 max-w-xl">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary font-sans text-xs font-bold border border-brand-primary/20 animate-pulse"
-          >
-            <span className="material-symbols-outlined text-[16px]">
-              bolt
-            </span>
-            AI-POWERED CAREER OS
-          </motion.div>
-
-          <h1 className="font-sans font-extrabold text-4xl md:text-6xl text-brand-dark leading-tight tracking-tighter">
-            Learn Smarter.<br />
-            <span className="text-brand-primary">Build Skills.</span><br />
-            Launch Your Career.
-          </h1>
-
-          <p className="font-sans text-base md:text-lg text-brand-dark/70 leading-relaxed">
-            Master software architecture, React, and data pipelines with real-time AI guidance, peer competitions, and verified digital credentials. Built for the developers of tomorrow.
-          </p>
-
-          {/* Action buttons */}
-          <div className="flex flex-wrap gap-4 items-center">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="bg-brand-primary text-white px-8 py-3.5 rounded-xl font-sans font-bold hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/20 cursor-pointer"
-            >
-              Start Learning Free
-            </motion.button>
-
-            <button className="bg-white/80 border border-brand-dark/10 px-8 py-3.5 rounded-xl font-sans font-bold hover:bg-white text-brand-dark/80 transition-colors shadow-sm cursor-pointer">
-              Explore Courses
-            </button>
-
-            <button className="flex items-center gap-2.5 text-brand-dark font-sans font-semibold hover:text-brand-primary transition-colors group">
-              <span className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-brand-primary">
-                  play_arrow
-                </span>
-              </span>
-              Watch Demo
-            </button>
+    <header className="landing-hero">
+      <div className="landing-hero-inner">
+        <div className="landing-hero-copy">
+          <div className="hero-eyebrow"><Sparkles size={15} /> YOUR NEXT CHAPTER STARTS HERE</div>
+          <h1>Build skills.<br /><span>Build your future.</span></h1>
+          <p className="hero-lede">Learn in-demand skills from expert-led courses, then put them to work with hands-on projects and career guidance.</p>
+          <div className="hero-actions">
+            <a href="#courses" className="hero-primary">Explore courses <ArrowRight size={18} /></a>
+            <a href="/signup" className="hero-secondary">Join for free</a>
           </div>
-
-          {/* Quick Metrics */}
-          <div className="flex gap-8 pt-8 border-t border-brand-dark/5">
-            {stats.map((stat, idx) => (
-              <div key={idx}>
-                <div className="font-sans font-extrabold text-2xl text-brand-primary">
-                  {stat.value}
-                </div>
-                <div className="text-brand-dark/50 text-xs font-semibold uppercase tracking-wider">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="hero-proof"><span className="proof-avatars"><i>A</i><i>R</i><i>S</i><i>+</i></span><span><strong>Learn at your pace</strong><small>Practical lessons. Real career momentum.</small></span></div>
         </div>
 
-        {/* Right side illustration */}
-        <div className="relative h-[480px] lg:h-[550px] w-full flex items-center justify-center">
-
-          {/* Main frame container */}
-          <div className="absolute inset-0 glass rounded-[2.5rem] p-6 shadow-2xl border border-white/60 flex flex-col justify-between overflow-hidden bg-white/35">
-
-            {/* Mock workspace view */}
-            <div className="flex items-center justify-between border-b border-brand-dark/5 pb-4">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
-                <span className="w-3 h-3 rounded-full bg-green-400"></span>
-              </div>
-
-              <span className="font-mono text-[10px] text-brand-dark/40 bg-white/50 px-3 py-1 rounded-full">
-                careergize.io/workspace
-              </span>
-            </div>
-
-            {/* Simulated Interactive code output block */}
-            <div className="flex-1 py-6 flex flex-col justify-center">
-              <div className="bg-brand-dark rounded-2xl p-5 shadow-inner text-left font-mono text-xs text-brand-primary-light space-y-2.5">
-                <div className="text-brand-dark/45">
-                  // Initializing Career Roadmap...
-                </div>
-
-                <div>
-                  <span className="text-pink-400">const</span>{" "}
-                  career ={" "}
-                  <span className="text-yellow-300">await</span>{" "}
-                  buildFuture(
-                  <span className="text-emerald-300">
-                    "fullstack_dev"
-                  </span>
-                  );
-                </div>
-
-                <div>
-                  <span className="text-purple-400">if</span>{" "}
-                  (career.ready) &#123;
-                </div>
-
-                <div className="pl-4">
-                  launchCampaign();{" "}
-                  <span className="text-brand-dark/45">
-                    // Microsoft, Google, Meta
-                  </span>
-                </div>
-
-                <div>&#125;</div>
-
-                <div className="text-emerald-400 font-bold mt-2">
-                  // OUTPUT: Trajectory Verified [Confidence: 98%]
-                </div>
-              </div>
-            </div>
-
-            {/* Small marketing highlights */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-
-              {/* Offer Received */}
-              <div className="bg-white/70 rounded-2xl p-3 border border-white flex items-center gap-3">
-                <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-                  <span className="material-symbols-outlined text-[20px] font-bold">
-                    verified
-                  </span>
-                </div>
-
-                <div className="text-left min-w-0">
-                  <div className="text-[9px] font-bold uppercase tracking-wider text-emerald-600">
-                    Career Milestone
-                  </div>
-
-                  <div className="text-xs font-extrabold text-brand-dark truncate">
-                    Offer Received
-                  </div>
-
-                  <div className="text-[9px] text-brand-dark/50 truncate">
-                    Software Engineer • Microsoft
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Boost */}
-              <div className="bg-white/70 rounded-2xl p-3 border border-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 shrink-0 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
-                    <span className="material-symbols-outlined text-[20px] font-bold">
-                      trending_up
-                    </span>
-                  </div>
-
-                  <div className="text-left min-w-0">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-brand-primary">
-                      Skill Growth
-                    </div>
-
-                    <div className="text-xs font-extrabold text-brand-dark">
-                      94% Accuracy
-                    </div>
-
-                    <div className="text-[9px] text-brand-dark/50">
-                      Logic Accuracy • +14%
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Existing course section */}
-            <div className="flex justify-between items-center bg-white/70 rounded-2xl p-4 border border-white">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-brand-primary text-2xl">
-                  workspace_premium
-                </span>
-
-                <div>
-                  <h4 className="font-sans font-bold text-xs text-brand-dark">
-                    Full-Stack Bootcamp
-                  </h4>
-
-                  <p className="text-[10px] text-brand-dark/50">
-                    Next Cohort Starts Today
-                  </p>
-                </div>
-              </div>
-
-              <span className="bg-brand-primary/10 text-brand-primary px-3 py-1.5 rounded-full font-sans font-bold text-[10px]">
-                Enroll Now
-              </span>
-            </div>
-
+        <div className="hero-course-panel">
+          <div className="hero-panel-heading"><div><span className="panel-kicker">FIND YOUR DIRECTION</span><h2>Skills for what’s next</h2></div><span className="panel-spark"><Sparkles size={19} /></span></div>
+          <label className="hero-search"><Search size={19} /><input aria-label="Search courses" placeholder="What do you want to learn?" /><kbd>↵</kbd></label>
+          <div className="hero-suggestions"><span>Popular:</span><a href="#courses">Data analytics</a><a href="#courses">UX design</a><a href="#courses">AI</a></div>
+          <div className="hero-featured-head"><span>Explore learning paths</span><a href="#courses">View all <ArrowRight size={14} /></a></div>
+          <div className="hero-course-list">
+            {featuredCourses.map((course) => <a href="#courses" className="hero-course-item" key={course.title}>
+              <span className={`course-mark ${course.color}`}>{course.icon}</span><span className="course-info"><small>{course.category}</small><strong>{course.title}</strong><span>{course.partner} <b>·</b> {course.detail}</span></span><ArrowRight className="course-arrow" size={17} />
+            </a>)}
           </div>
+          <div className="hero-panel-foot"><BadgeCheck size={16} /> Learn practical skills with a clear path forward</div>
         </div>
       </div>
+      <div className="hero-trust"><div className="trust-caption"><BriefcaseBusiness size={17} /> Skills employers value</div><div className="trust-names"><span>Google</span><span>Microsoft</span><span>amazon</span><span>Meta</span><span>IBM</span><span>Adobe</span></div></div>
     </header>
   );
 }

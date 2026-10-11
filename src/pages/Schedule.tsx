@@ -207,10 +207,10 @@ export default function Schedule() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [attendanceStats, setAttendanceStats] = useState({
-    rate: 85,
-    presentCount: 17,
-    totalClasses: 20,
-    streak: 14,
+    rate: 0,
+    presentCount: 0,
+    totalClasses: 0,
+    streak: 0,
   });
 
   // Class Sessions State — backend data only
@@ -238,13 +238,6 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
     setTimeout(() => setToast(null), 2500);
   };
 
-  // Sync to localStorage
-  useEffect(() => {
-    if (sessions && sessions.length > 0) {
-      localStorage.setItem("cg_unified_schedule", JSON.stringify(sessions));
-    }
-  }, [sessions]);
-
   // Load user
   useEffect(() => {
     const loggedInUser = localStorage.getItem("loggedInUser");
@@ -260,7 +253,10 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    if (!token) return;
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
     fetch("http://127.0.0.1:8000/api/schedule/stats/", {
       headers: {
@@ -277,23 +273,26 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
       .then((data) => {
         if (data && (data.totalSessions > 0 || data.overallAttendance !== undefined)) {
           setAttendanceStats({
-            rate: data.overallAttendance ?? 85,
-            presentCount: data.attendedSessions ?? 17,
-            totalClasses: data.totalSessions ?? 20,
-            streak: data.attendanceStreak ?? 14,
+            rate: data.overallAttendance ?? 0,
+            presentCount: data.attendedSessions ?? 0,
+            totalClasses: data.totalSessions ?? 0,
+            streak: data.attendanceStreak ?? 0,
           });
         }
       })
       .catch((error) => {
         console.error("Attendance stats error:", error);
       });
-  }, []);
+  }, [navigate]);
 
-  // Fetch backend schedule if available
+  // Fetch the authenticated student's schedule from the backend.
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    if (!token) return;
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
     fetch("http://127.0.0.1:8000/api/schedule/", {
       headers: {
@@ -312,7 +311,7 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
 
         const mappedSessions: ClassSession[] = Array.isArray(sessionsData)
   ? sessionsData.map((session: any) => {
-      const dateParts = session.date.split("-");
+      const dateParts = (session.date || "").split("-");
 
       return {
         id: session.id.toString(),
@@ -334,7 +333,10 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
         status: session.status,
         attendance: session.attendance,
         checkInTime: session.checkInTime ?? undefined,
-        items: session.items ?? [],
+        items: (session.items ?? []).map((item: any) => ({
+          ...item,
+          id: item.id.toString(),
+        })),
       };
     })
   : [];
@@ -345,7 +347,7 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
       .catch((error) => {
         console.error("Schedule fetch error:", error);
       });
-  }, []);
+  }, [navigate]);
 
 
   const getFormattedName = (u: any, fallback = "Student") => {
@@ -406,6 +408,7 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
   const handleLogout = () => {
     localStorage.removeItem("loggedInStudentId");
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("authToken");
     navigate("/login");
   };
 
@@ -428,95 +431,128 @@ const [sessions, setSessions] = useState<ClassSession[]>([]);
   };
 
   // Toggle checklist item
-  const handleToggleItem = (sessionId: string, itemId: string) => {
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === sessionId) {
-          const updatedItems = s.items.map((item) =>
-            item.id === itemId ? { ...item, done: !item.done } : item
-          );
-          return { ...s, items: updatedItems };
-        }
-        return s;
-      })
-    );
+  const handleToggleItem = async (sessionId: string, itemId: string) => {
+    const token = localStorage.getItem("authToken");
+    const item = sessions.find((session) => session.id === sessionId)?.items.find((entry) => entry.id === itemId);
+    if (!token || !item) return;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/schedule/checklist/${itemId}/`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ done: !item.done }),
+      });
+      if (!response.ok) throw new Error(`Failed to update checklist item: ${response.status}`);
+      const updatedItem = await response.json();
+
+      setSessions((prev) => prev.map((session) => session.id === sessionId
+        ? { ...session, items: session.items.map((entry) => entry.id === itemId ? { ...updatedItem, id: updatedItem.id.toString() } : entry) }
+        : session));
+    } catch (error) {
+      console.error("Checklist update error:", error);
+      showToast("Unable to update this item. Please try again.");
+    }
   };
 
   // Delete checklist item
-  const handleDeleteItem = (sessionId: string, itemId: string) => {
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === sessionId) {
-          return { ...s, items: s.items.filter((item) => item.id !== itemId) };
-        }
-        return s;
-      })
-    );
-    showToast("Item removed from session.");
+  const handleDeleteItem = async (sessionId: string, itemId: string) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/schedule/checklist/${itemId}/`, {
+        method: "DELETE",
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to delete checklist item: ${response.status}`);
+      setSessions((prev) => prev.map((session) => session.id === sessionId
+        ? { ...session, items: session.items.filter((item) => item.id !== itemId) }
+        : session));
+      showToast("Item removed from session.");
+    } catch (error) {
+      console.error("Checklist delete error:", error);
+      showToast("Unable to remove this item. Please try again.");
+    }
   };
 
   // Add new item needed to this session
-  const handleAddItem = (sessionId: string, e: React.FormEvent) => {
+  const handleAddItem = async (sessionId: string, e: React.FormEvent) => {
     e.preventDefault();
     const text = (newInputs[sessionId] || "").trim();
     if (!text) return;
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
 
-    const newItem: SessionItem = {
-      id: `item-${Date.now()}`,
-      text,
-      done: false,
-    };
-
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === sessionId) {
-          return { ...s, items: [...s.items, newItem] };
-        }
-        return s;
-      })
-    );
-
-    setNewInputs((prev) => ({ ...prev, [sessionId]: "" }));
-    showToast("Added item to session requirements!");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/schedule/${sessionId}/checklist/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+      if (!response.ok) throw new Error(`Failed to add checklist item: ${response.status}`);
+      const item = await response.json();
+      setSessions((prev) => prev.map((session) => session.id === sessionId
+        ? { ...session, items: [...session.items, { ...item, id: item.id.toString() }] }
+        : session));
+      setNewInputs((prev) => ({ ...prev, [sessionId]: "" }));
+      showToast("Added item to session requirements!");
+    } catch (error) {
+      console.error("Checklist add error:", error);
+      showToast("Unable to add this item. Please try again.");
+    }
   };
 
   // Check In for Attendance
-  const handleCheckIn = (sessionId: string) => {
-    const timeStr = new Date().toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const handleCheckIn = async (sessionId: string) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
 
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === sessionId) {
-          return {
-            ...s,
-            attendance: "present",
-            checkInTime: timeStr,
-          };
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/schedule/${sessionId}/check-in/`, {
+        method: "POST",
+        headers: { Authorization: `Token ${token}` },
+      });
+      if (!response.ok) throw new Error(`Failed to check in: ${response.status}`);
+      const data = await response.json();
+      const timeStr = data.checkInTime
+        ? new Date(data.checkInTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+        : "";
+
+      setSessions((prev) => prev.map((session) => session.id === sessionId
+        ? { ...session, attendance: data.attendance, checkInTime: timeStr || undefined }
+        : session));
+
+      try {
+        const statsResponse = await fetch("http://127.0.0.1:8000/api/schedule/stats/", {
+          headers: { Authorization: `Token ${token}` },
+        });
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          setAttendanceStats({
+            rate: stats.overallAttendance ?? 0,
+            presentCount: stats.attendedSessions ?? 0,
+            totalClasses: stats.totalSessions ?? 0,
+            streak: stats.attendanceStreak ?? 0,
+          });
         }
-        return s;
-      })
-    );
-
-    setAttendanceStats((prev) => {
-      const newPresent = prev.presentCount + 1;
-      const total = Math.max(prev.totalClasses, sessions.length, 1);
-      return {
-        ...prev,
-        presentCount: newPresent,
-        rate: Math.min(100, Math.round((newPresent / total) * 100)),
-        streak: prev.streak + 1,
-      };
-    });
-
-    showToast(`Marked Present! Attendance verified at ${timeStr}`);
+      } catch (error) {
+        console.error("Attendance stats refresh error:", error);
+      }
+      showToast(`Marked Present!${timeStr ? ` Attendance verified at ${timeStr}` : ""}`);
+    } catch (error) {
+      console.error("Attendance check-in error:", error);
+      showToast("Unable to mark attendance. Please try again.");
+    }
   };
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="student-light-theme min-h-screen bg-white text-slate-900 font-sans selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* =========================================================
           DESKTOP SIDEBAR (Careergize Standard)
       ========================================================= */}

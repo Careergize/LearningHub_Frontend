@@ -370,7 +370,7 @@ const response = await fetch(
   );
 
   return (
-    <div className="student-dark-theme min-h-screen bg-slate-50">
+    <div className="student-light-theme min-h-screen bg-white">
 
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
